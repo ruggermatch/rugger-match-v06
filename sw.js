@@ -1,17 +1,17 @@
-const CACHE_NAME = 'ruggermatch-pwa-v3'; // Cambia a v3, v4, etc., cuando actualices index.html
+const CACHE_NAME = 'ruggermatch-pwa-v4'; // Versión incrementada
 const ASSETS = [
+  './',
   './index.html',
   './manifest.json',
   './icon.png',
-  'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js',
-  'https://accounts.google.com/gsi/client'
+  'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js'
 ];
 
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
   );
-  self.skipWaiting();
+  // Se ha eliminado self.skipWaiting() para no interrumpir la app en uso
 });
 
 self.addEventListener('activate', event => {
@@ -20,7 +20,6 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheName !== CACHE_NAME) {
-            console.log('Borrando caché antigua:', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -31,9 +30,22 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
+  
+  const url = new URL(event.request.url);
+  if (url.hostname.includes('google.com') || url.hostname.includes('script.google.com')) {
+      return;
+  }
+
   event.respondWith(
     caches.match(event.request).then(response => {
       return response || fetch(event.request);
     })
   );
+});
+
+// Listener para recibir la orden de actualización desde index.html
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
