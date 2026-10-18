@@ -1,0 +1,1851 @@
+<html lang="es">
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>RuggerMatch - Sistema Modular SPA PWA</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e293b">
+    <link rel="icon" type="image/png" href="./icon.png">
+    <link rel="apple-touch-icon" href="./icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        :root {
+            --primary: #1e293b; --secondary: #3b82f6; --success: #22c55e;
+            --danger: #ef4444; --warning: #f59e0b; --bg: #f8fafc;
+            --bg-local: #bfdbfe; --border-local: #3b82f6;
+            --bg-visitor: #fecaca; --border-visitor: #ef4444;
+            --g1: #4ade80; --g2: #22c55e; --g3: #16a34a; --g4: #15803d; --g5: #166534; --g6: #14532d; --g7: #064e3b;
+        }
+        * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; touch-action: manipulation; }
+        body { margin: 0; padding: 0; background-color: var(--bg); color: var(--primary); height: 100vh; width: 100vw; overflow: hidden; }
+
+        #portraitWarning { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--primary); color: white; z-index: 9999; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        @media screen and (orientation: portrait) { #portraitWarning { display: flex; } .spa-screen { display: none !important; } }
+
+        .spa-screen { display: none; width: 100vw; height: 100vh; padding: 8px; flex-direction: column; }
+        .spa-screen.active { display: flex; }
+
+        .card { margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
+        .form-group { margin-bottom: 12px; text-align: left; }
+        .form-group label { display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px; color: #475569; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; }
+        .btn-primary { width: 100%; background: var(--secondary); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; }
+        .btn-danger { background: var(--danger); color: white; border: none; padding: 8px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+
+        .setup-container { display: flex; flex-direction: column; height: 100%; }
+        .setup-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-shrink: 0; }
+        .setup-grid { display: flex; flex-direction: row; gap: 12px; flex: 1; min-height: 0; }
+        
+        .setup-box { background: white; border-radius: 8px; padding: 12px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow-y: auto;}
+        .setup-box h4 { margin: 0 0 10px 0; font-size: 0.85rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 6px; text-transform: uppercase; color: #64748b; }
+        .setup-left { flex: 1; }
+        .setup-right { flex: 2; display: block; }
+        
+        .modules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 15px; }
+        .module-card { background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 6px; padding: 10px; cursor: pointer; text-align: center; min-height: 90px; display: flex; flex-direction: column; justify-content: center; }
+        .module-card.selected { border-color: var(--secondary); background: #dbeafe; box-shadow: 0 0 0 1px var(--secondary); }
+
+        .btn-start-match { background: var(--success); width: 100%; display: block; margin-top: 10px;}
+
+        .top-bar { display: flex; justify-content: space-between; align-items: center; background: white; padding: 6px 10px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); flex-shrink: 0; }
+        .timer-section { display: flex; align-items: center; gap: 10px; }
+        .timer-display { font-size: 1.3rem; font-weight: bold; font-variant-numeric: tabular-nums; }
+        .period-toggle { font-weight: bold; cursor: pointer; padding: 4px 8px; border: 2px solid var(--primary); border-radius: 5px; font-size: 0.85rem; }
+        .score-section { display: flex; gap: 12px; align-items: center; font-weight: bold; font-size: 1.1rem; }
+        .score-input { width: 45px; font-size: 1.1rem; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 2px; }
+        .module-badge { padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; color: white; letter-spacing: 0.5px;}
+        .action-buttons { display: flex; gap: 6px; align-items: center; }
+        .action-buttons button { border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: white; font-size: 0.8rem; padding: 8px 12px; transition: all 0.2s; }
+        .btn-play { background: var(--success); } .btn-export { background: var(--danger); } .btn-menu { background: #64748b; } .btn-reset { background: var(--warning); color: #000; } .btn-icon { background: #475569; padding: 8px; font-size: 0.9rem;}
+        .btn-edit-layout { background: #8b5cf6; } .btn-edit-layout.active { background: var(--danger); }
+        
+        .btn-undo { background: var(--warning); color: #000; border: none; padding: 4px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 4px; transition: all 0.2s; white-space: nowrap; flex-shrink: 0; }
+        .btn-undo:hover { filter: brightness(0.95); }
+        .btn-undo:active { transform: scale(0.95); }
+        .btn-redo { background: #e2e8f0; color: #1e293b; border: 1px solid #cbd5e1; padding: 4px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 4px; transition: all 0.2s; white-space: nowrap; flex-shrink: 0; }
+        .btn-redo:hover { background: #cbd5e1; }
+        .btn-redo:active { transform: scale(0.95); }
+
+        .btn-undo-mini, .btn-redo-mini { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; padding: 2px 6px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.65rem; display: flex; align-items: center; gap: 2px; }
+        .btn-redo-mini { background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
+        .btn-undo-mini:hover { background: #fde68a; }
+        .btn-redo-mini:hover { background: #e2e8f0; }
+
+        .middle-section { display: flex; flex-shrink: 0; height: 38vh; gap: 8px; margin: 8px 0; }
+        
+        .pitch-container { flex: 2.5; display: flex; flex-direction: column; background: #000; border: 2px solid #000; border-radius: 6px; overflow: hidden;}
+        .pitch-wrapper { position: relative; flex: 1; display: flex; }
+        .pitch-grid { flex: 1; display: grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: repeat(3, 1fr); gap: 0; background: #000; }
+        
+        .pitch-overlays { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
+        .zone { display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: bold; cursor: pointer; border: 1px dashed rgba(255,255,255,0.25); user-select: none; position: relative; }
+        
+        .zone.selected { 
+            border: 3px solid #fff !important; 
+            box-shadow: inset 0 0 0 1000px rgba(255, 255, 255, 0.3) !important;
+        }
+        
+        .zone.selected::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 35%;
+            height: 35%;
+            min-width: 22px;
+            min-height: 22px;
+            background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cellipse cx='50' cy='50' rx='45' ry='30' fill='%23ffffff' stroke='%2314532d' stroke-width='4' transform='rotate(-25 50 50)'/%3E%3Cpath d='M15,35 Q50,15 85,35' fill='none' stroke='%2314532d' stroke-width='3' transform='rotate(-25 50 50)'/%3E%3Cpath d='M15,65 Q50,85 85,65' fill='none' stroke='%23333333' stroke-width='3' transform='rotate(-25 50 50)'/%3E%3Ctext x='50' y='62' font-family='sans-serif' font-weight='900' font-size='32' font-style='italic' text-anchor='middle'%3E%3Ctspan fill='%2314532d'%3ER%3C/tspan%3E%3Ctspan fill='%23333333'%3EM%3C/tspan%3E%3C/text%3E%3C/svg%3E");
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 10;
+            pointer-events: none;
+            filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.4));
+        }
+
+        .zone.selected span { 
+            display: none !important;
+        }
+
+        .z1 { background-color: var(--g1); } .z2 { background-color: var(--g2); } .z3 { background-color: var(--g3); } .z4 { background-color: var(--g4); } .z5 { background-color: var(--g5); } .z6 { background-color: var(--g6); } .z7 { background-color: var(--g7); }
+        
+        body.hide-zone-labels .zone > span, 
+        body.hide-zone-labels .vertical-line span,
+        body.hide-zone-labels .line-5m-vertical span { opacity: 0; pointer-events: none; }
+        body.hide-zone-labels .zone { border-color: transparent !important; }
+
+        .horizontal-line { position: absolute; left: calc(100% / 7); width: calc((100% / 7) * 5); border-top: 2px dashed rgba(255,255,255,0.4); }
+        .line-5m-horizontal { position: absolute; left: calc(100% / 7); width: calc((100% / 7) * 5); border-top: 2px dotted rgba(255,255,255,0.35); pointer-events: none; }
+        .vertical-line { position: absolute; top: 0; height: 100%; width: 2px; background: rgba(255,255,255,0.6); transform: translateX(-50%); display: flex; flex-direction: column; padding-top: 6px; align-items: center; }
+        .vertical-line.center { background: rgba(255,255,255,0.8); }
+        .vertical-line.dashed { background: transparent; border-left: 2px dashed rgba(255,255,255,0.7); width: 0; }
+        .vertical-line span { color: #ffffff; font-size: 0.6rem; font-weight: 800; background: rgba(0,0,0,0.75); padding: 2px 5px; border-radius: 4px; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.6); letter-spacing: 0.5px; }
+        .line-5m-vertical { position: absolute; top: 0; height: 100%; border-left: 2px dotted rgba(255,255,255,0.35); pointer-events: none; display: flex; flex-direction: column; padding-top: 6px; align-items: center; }
+        .line-5m-vertical span { color: rgba(255,255,255,0.9); font-size: 0.55rem; font-weight: bold; background: rgba(0,0,0,0.5); padding: 1px 4px; border-radius: 3px; white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.5); letter-spacing: 0.5px; }
+        
+        .goalpost { position: absolute; width: 18px; height: 11%; top: 44.5%; z-index: 10; pointer-events: none;}
+        .goalpost.left { left: calc(100% / 7 * 1); transform: translateX(-100%) skewY(-22deg); }
+        .goalpost.right { left: calc(100% / 7 * 6); transform: translateX(0%) skewY(22deg); }
+        .goalpost .post { position: absolute; width: 100%; height: 3px; background: #fef08a; border-bottom: 1px solid #b45309; }
+        .goalpost.left .post { box-shadow: -2px 3px 3px rgba(0,0,0,0.6); }
+        .goalpost.right .post { box-shadow: 2px 3px 3px rgba(0,0,0,0.6); }
+        .goalpost .post.top { top: 0; }
+        .goalpost .post.bottom { bottom: 0; }
+        .goalpost .crossbar { position: absolute; width: 3px; height: 100%; background: #fef08a; left: 45%; border-right: 1px solid #b45309; }
+        .goalpost.left .crossbar { box-shadow: -2px 3px 3px rgba(0,0,0,0.6); }
+        .goalpost.right .crossbar { box-shadow: 2px 3px 3px rgba(0,0,0,0.6); }
+
+        .attack-direction { height: 20px; background: #e2e8f0; color: #475569; font-size: 0.65rem; font-weight: bold; display: flex; justify-content: center; align-items: center; cursor: pointer; text-transform: uppercase; border-top: 1px solid #cbd5e1; user-select: none;}
+
+        .log-panel { flex: 1.2; background: white; border-radius: 6px; padding: 8px; border: 1px solid #cbd5e1; display: flex; flex-direction: column; overflow: hidden; }
+        .log-title { font-size: 0.75rem; font-weight: bold; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; color: var(--primary); }
+        .log-list { list-style: none; padding: 0; margin: 0; font-size: 0.65rem; overflow-y: auto; flex: 1; border-top: 1px solid #e2e8f0; padding-top: 4px;}
+        .log-list li { border-bottom: 1px dashed #f1f5f9; padding: 3px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .live-stats { display: flex; flex-direction: column; gap: 4px; margin-bottom: 4px; flex-shrink: 0; }
+        .stat-row { display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: bold; color: #475569; }
+        .stat-bar-bg { display: flex; height: 6px; width: 100%; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
+        .stat-bar-fill { height: 100%; transition: width 0.3s; }
+        
+        .stats-table { width:100%; font-size:0.6rem; text-align:center; border-collapse:collapse; margin-bottom:6px; }
+        .stats-table th { color:#64748b; border-bottom:1px solid #e2e8f0; padding-bottom:2px; }
+        .stats-table td { padding: 1px 0; font-variant-numeric: tabular-nums;}
+
+        .bottom-panel { background: white; padding: 8px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 8px; flex: 1; }
+        .teams-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; height: 36px; flex-shrink: 0; }
+        .team-btn { font-size: 0.9rem; font-weight: bold; border: 2px solid transparent; border-radius: 4px; cursor: pointer; transition: all 0.2s;}
+        .team-btn-local { background: var(--bg-local); color: var(--primary); border-color: var(--border-local); }
+        .team-btn-local.selected { background: var(--border-local); color: white; }
+        .team-btn-visitor { background: var(--bg-visitor); color: var(--primary); border-color: var(--border-visitor); }
+        .team-btn-visitor.selected { background: var(--border-visitor); color: white; }
+
+        .columns-3-container { flex: 1; display: flex; gap: 8px; min-height: 0; }
+        .column { display: flex; flex-direction: column; gap: 4px; background: #f8fafc; padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1; overflow-y: auto; }
+        
+        #col1 { flex: 3; position: relative; }
+        #col2 { flex: 2; }
+        #col3 { flex: 1.5; }
+        
+        .col-header-wrap { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #cbd5e1; padding-bottom: 4px; margin-bottom: 2px; flex-shrink: 0; }
+        .col-header { font-size: 0.7rem; font-weight: bold; text-transform: uppercase; color: #475569; text-align: center; flex: 1;}
+        .col-move-btn { background: #e2e8f0; border: none; font-size: 0.7rem; cursor: pointer; padding: 2px 6px; border-radius: 3px; display: none; }
+        body.is-editing .col-move-btn { display: block; }
+        
+        .col-content { display: grid; grid-auto-rows: 1fr; gap: 4px; flex: 1; align-content: stretch; }
+        #col1-content { grid-template-columns: repeat(3, 1fr); }
+        #col2-content { grid-template-columns: repeat(2, 1fr); }
+        #col3-content { grid-template-columns: 1fr; }
+        
+        .col-content .evt-btn { width: 100%; height: 100%; min-height: 36px; font-size: 0.7rem; font-weight: 600; border-radius: 4px; background: white; border: 1px solid #cbd5e1; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; user-select: none; }
+        .col-content .evt-btn:active { transform: scale(0.96); background: #e2e8f0; }
+        
+        body.is-editing .evt-btn { border: 2px dashed #94a3b8; opacity: 0.8; }
+        body.is-editing .evt-btn.move-source { border: 2px solid var(--danger) !important; background: #fef2f2 !important; opacity: 1; transform: scale(1.02); }
+
+        .subfase-placeholder { grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 0.75rem; font-style: italic; text-align: center; height: 100%; }
+
+        .controls-row { display: flex; gap: 8px; height: 32px; flex-shrink: 0; align-items: center; }
+        .notes-input { flex: 1; padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.85rem; }
+        
+        .btn-text-note { background: var(--secondary); color: white; border: none; font-size: 0.8rem; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-text-note:active { transform: scale(0.95); opacity: 0.8; }
+        .btn-mic { background: #cbd5e1; color: var(--primary); font-size: 1.1rem; padding: 3px 10px; border-radius: 4px; border: none; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; }
+        .btn-mic.recording { background: var(--danger); color: white; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 8px var(--danger); } 100% { transform: scale(1); } }
+        
+        .status-text { font-size: 0.75rem; color: #64748b; font-weight: bold; width: 220px; text-align: right; }
+        
+        .modal-overlay { display: none; position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(15, 23, 42, 0.7); z-index: 1000; align-items:center; justify-content:center; backdrop-filter: blur(2px);}
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; padding: 24px; border-radius: 10px; width: 95vw; max-width: 1200px; max-height: 90vh; display: flex; flex-direction: column;}
+        
+        #dictForm { flex:1; overflow-y:auto; padding: 10px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 15px; align-items: start; align-content: start;}
+        
+        #touch-popup {
+            display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(248, 250, 252, 0.95); z-index: 10; padding: 12px;
+            flex-direction: column; gap: 8px; border-radius: 6px;
+            border: 2px solid var(--secondary); backdrop-filter: blur(2px); overflow-y: auto;
+        }
+
+        .btn-group { display: flex; flex-wrap: wrap; gap: 4px; }
+        .btn-group-item { flex: 1; min-width: 32px; padding: 8px 4px; text-align: center; background: white; border: 1px solid #cbd5e1; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.75rem; color: #475569; user-select: none; transition: all 0.2s; display: flex; align-items: center; justify-content: center;}
+        .btn-group-item.selected { background: var(--secondary); color: white; border-color: var(--secondary); transform: scale(1.05); }
+        
+        .touch-grid-0-9 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 100%; }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body>
+    <div id="portraitWarning"><h2>⚠️ Gira el dispositivo</h2><p>La aplicación exige orientación apaisada.</p></div>
+
+    <div id="screen-login" class="spa-screen active" style="align-items: center; justify-content: center;">
+        <div class="card" style="width: 320px; text-align: center;">
+            <h2 style="margin-top:0;">RuggerMatch PWA</h2>
+            <p style="font-size: 0.85rem; color:#64748b; margin-bottom: 20px;">Acceso Piloto Serverless</p>
+            
+            <div id="g_id_onload"
+                 data-client_id="302290363381-8n8fsn8k3ev0c26j2iui7vo8p11jbfaj.apps.googleusercontent.com"
+                 data-context="signin"
+                 data-ux_mode="popup"
+                 data-callback="handleGoogleLogin"
+                 data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-shape="rectangular"
+                 data-theme="outline"
+                 data-text="signin_with"
+                 data-size="large"
+                 data-logo_alignment="center">
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-alert" class="modal-overlay" style="z-index: 2000;">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h3 id="alert-title" style="margin-top:0; color:var(--warning);">⚠️ Aviso</h3>
+            <p id="alert-message" style="font-size:0.95rem; color:#475569; margin-bottom: 20px;"></p>
+            <button class="btn-primary" onclick="document.getElementById('modal-alert').classList.remove('active')">Entendido</button>
+        </div>
+    </div>
+
+    <div id="modal-confirm" class="modal-overlay" style="z-index: 2000;">
+        <div class="modal-content" style="max-width: 450px; text-align: center;">
+            <h3 id="confirm-title" style="margin-top:0; color:var(--primary);">Confirmación</h3>
+            <p id="confirm-message" style="font-size:0.95rem; color:#475569; margin-bottom: 20px; white-space: pre-line; line-height: 1.4;"></p>
+            <div style="display:flex; gap: 10px; justify-content: center;">
+                <button id="btn-confirm-yes" class="btn-primary" style="background:var(--success);">Aceptar</button>
+                <button id="btn-confirm-no" class="btn-danger" style="padding: 12px; background:#64748b;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-recovery" class="modal-overlay">
+        <div class="modal-content" style="max-width: 450px; text-align: center;">
+            <h3 style="margin-top:0; color:var(--primary);">🔄 Sesión Detectada</h3>
+            <p style="font-size:0.9rem; color:#475569; margin-bottom: 20px;">Se ha detectado un partido guardado en la memoria local de este dispositivo.</p>
+            <div style="display:flex; flex-direction: column; gap: 10px;">
+                <button class="btn-primary" style="background:var(--success);" onclick="recoverSession()">Continuar Sesión Anterior</button>
+                <button class="btn-danger" style="padding: 12px;" onclick="discardSession()">⚠️ Borrar Todo e Iniciar Nuevo Partido</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-setup" class="spa-screen">
+        <div class="setup-container">
+            <div class="setup-header">
+                <h2 style="margin:0;">Configuración del Partido</h2>
+                <div class="action-buttons">
+                    <button class="btn-danger" onclick="hardResetData()">⚠️ Borrar Memoria</button>
+                    <button class="btn-menu" style="padding: 8px 16px;" onclick="checkAdminUnlock(openSettings)">⚙️ Diccionario Avanzado</button>
+                </div>
+            </div>
+            <div class="setup-grid">
+                <div class="setup-box setup-left">
+                    <h4>1. Equipos</h4>
+                    <div class="form-group">
+                        <label style="display: flex; justify-content: space-between; align-items: center;">
+                            Equipo Local
+                            <span style="font-size: 0.7rem; font-weight: normal; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; border: 1px solid #cbd5e1; cursor:pointer;">
+                                <input type="radio" name="myTeam" id="isMyTeamL" value="Local" checked style="margin:0 4px 0 0; vertical-align:middle;"> Mi Equipo
+                            </span>
+                        </label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="color" id="colorL" value="#3b82f6" style="width:40px; height:40px; border:none; cursor:pointer; padding:0;">
+                            <input type="text" id="nameL" class="form-control" placeholder="Largo" value="Club Local">
+                            <input type="text" id="shortL" class="form-control" placeholder="Corto" maxlength="4" style="width:70px; text-align:center;" value="LOC">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 10px;">
+                        <label style="display: flex; justify-content: space-between; align-items: center;">
+                            Equipo Visitante
+                            <span style="font-size: 0.7rem; font-weight: normal; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; border: 1px solid #cbd5e1; cursor:pointer;">
+                                <input type="radio" name="myTeam" id="isMyTeamV" value="Visitante" style="margin:0 4px 0 0; vertical-align:middle;"> Mi Equipo
+                            </span>
+                        </label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="color" id="colorV" value="#ef4444" style="width:40px; height:40px; border:none; cursor:pointer; padding:0;">
+                            <input type="text" id="nameV" class="form-control" placeholder="Largo" value="Club Visitante">
+                            <input type="text" id="shortV" class="form-control" placeholder="Corto" maxlength="4" style="width:70px; text-align:center;" value="VIS">
+                        </div>
+                    </div>
+                </div>
+                <div class="setup-box setup-right">
+                    <h4>2. Módulo de Análisis</h4>
+                    <div class="modules-grid" id="modulesGrid"></div>
+                    <button class="btn-primary btn-start-match" onclick="startMatch()">Ir al Partido 🏉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-settings" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="margin-top:0;">Organización de Módulos y Diccionario</h3>
+            <p id="dictLockWarning" style="font-size:0.85rem; color:var(--danger); font-weight:bold; display:none; background:#fef2f2; padding:8px; border-radius:4px; border:1px solid #fecaca; margin-bottom:10px;">🔒 Layout bloqueado: Partido en curso.</p>
+            <p style="font-size:0.8rem; color:#64748b; margin-bottom: 10px;">Selecciona en qué módulo debe aparecer cada fase y renómbralas si es necesario.</p>
+            
+            <div id="dictForm"></div>
+            
+            <div style="display:flex; gap:10px; margin-top: 15px; flex-shrink: 0; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+                <button id="btnSaveDict" class="btn-primary" onclick="saveSettings()">Guardar Cambios</button>
+                <button class="btn-primary" style="background:#64748b;" onclick="closeSettings()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-tracker" class="spa-screen">
+        <div class="top-bar">
+            <div class="timer-section">
+                <span class="timer-display" id="timerDisplay">00:00</span>
+                <div class="period-toggle" onclick="togglePeriod()" id="periodToggle">1ª Parte</div>
+                <div class="action-buttons">
+                    <button class="btn-play" onclick="toggleTimer()">Inicio / Pausa</button>
+                    <button class="btn-reset" onclick="resetMatch()">Reset</button>
+                </div>
+            </div>
+            <div class="module-badge" id="moduleBadge">ATAQUE</div>
+            <div class="score-section">
+                <div style="display:flex; align-items:center; gap:6px;"><span id="scoreLblL">LOC</span> <input type="number" id="scoreL" class="score-input" value="0" min="0" onchange="saveState()"></div>
+                <div style="display:flex; align-items:center; gap:6px;"><input type="number" id="scoreV" class="score-input" value="0" min="0" onchange="saveState()"> <span id="scoreLblV">VIS</span></div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn-edit-layout" id="btnEditLayout" onclick="checkAdminUnlock(toggleEditMode)">✏️ Layout</button>
+                <button class="btn-icon" onclick="toggleZoneLabels()">👁️</button>
+                <button class="btn-menu" onclick="navigateToScreen('screen-setup')">Menú</button>
+                <button class="btn-export" onclick="uploadMatchToCloud()">Subir a Nube ☁️</button>
+            </div>
+        </div>
+
+        <div class="middle-section">
+            <div class="pitch-container">
+                <div class="pitch-wrapper">
+                    <div class="pitch-grid" id="pitchGrid"></div>
+                    <div class="pitch-overlays">
+                        <div class="horizontal-line" style="top: 33.333%;"></div>
+                        <div class="horizontal-line" style="top: 66.666%;"></div>
+                        
+                        <div class="line-5m-horizontal" style="top: 12%;"></div>
+                        <div class="line-5m-horizontal" style="top: 88%;"></div>
+                        
+                        <div class="line-5m-vertical" style="left: calc((100% / 7 * 1) + 3.5%);"><span>5m</span></div>
+                        <div class="line-5m-vertical" style="left: calc((100% / 7 * 6) - 3.5%);"><span>5m</span></div>
+
+                        <div class="vertical-line" style="left: calc(100% / 7 * 1);"><span>ENSAYO</span></div>
+                        <div class="vertical-line" style="left: calc(100% / 7 * 2);"><span>22</span></div>
+                        <div class="vertical-line dashed" style="left: calc(100% / 7 * 3);"><span>10</span></div>
+                        <div class="vertical-line center" style="left: 50%;"><span>CENTRO</span></div>
+                        <div class="vertical-line dashed" style="left: calc(100% / 7 * 4);"><span>10</span></div>
+                        <div class="vertical-line" style="left: calc(100% / 7 * 5);"><span>22</span></div>
+                        <div class="vertical-line" style="left: calc(100% / 7 * 6);"><span>ENSAYO</span></div>
+
+                        <div class="goalpost left">
+                            <div class="post top"></div>
+                            <div class="crossbar"></div>
+                            <div class="post bottom"></div>
+                        </div>
+                        <div class="goalpost right">
+                            <div class="post top"></div>
+                            <div class="crossbar"></div>
+                            <div class="post bottom"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="attack-direction" onclick="togglePitchFlip()" id="btnFlipPitch">SENTIDO DE ATAQUE ➔ 🔄</div>
+            </div>
+
+            <div class="log-panel">
+                <div class="log-title">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span>SESIÓN <span id="sessionDisplay" style="color:var(--secondary);">#1</span></span>
+                        <span id="statsBasic" style="color:var(--secondary);">(0)</span>
+                    </div>
+                    <div style="display:flex; gap:4px;">
+                        <button class="btn-undo-mini" id="btnUndoLog" onclick="undoLastAction()" title="Deshacer (Ctrl+Z)">↩️</button>
+                        <button class="btn-redo-mini" id="btnRedoLog" onclick="redoLastAction()" title="Rehacer (Ctrl+Y)">↪️</button>
+                    </div>
+                </div>
+                <table class="stats-table">
+                    <thead><tr><th style="text-align:left;">KPI</th><th id="stLblL">LOC</th><th id="stLblV">VIS</th></tr></thead>
+                    <tbody>
+                        <tr><td style="text-align:left; font-weight:bold;">Ensayos</td><td id="kpi-ens-l">0</td><td id="kpi-ens-v">0</td></tr>
+                        <tr><td style="text-align:left; font-weight:bold;">Melées</td><td id="kpi-mel-l">0</td><td id="kpi-mel-v">0</td></tr>
+                        <tr><td style="text-align:left; font-weight:bold;">Touchs</td><td id="kpi-tou-l">0</td><td id="kpi-tou-v">0</td></tr>
+                        <tr><td style="text-align:left; font-weight:bold;">Golpes</td><td id="kpi-gol-l">0</td><td id="kpi-gol-v">0</td></tr>
+                    </tbody>
+                </table>
+                <div class="live-stats">
+                    <div class="stat-row"><span id="lblPosL">LOC 0%</span><span>POSESIÓN</span><span id="lblPosV">0% VIS</span></div>
+                    <div class="stat-bar-bg">
+                        <div class="stat-bar-fill" id="barPosL" style="background:var(--border-local); width:0%;"></div>
+                        <div class="stat-bar-fill" id="barPosV" style="background:var(--border-visitor); width:0%;"></div>
+                    </div>
+                    <div class="stat-row" style="margin-top:2px;"><span id="lblTerL">Z4-Z7 0%</span><span>TERRITORIO</span><span id="lblTerV">0% Z1-Z4</span></div>
+                    <div class="stat-bar-bg">
+                        <div class="stat-bar-fill" id="barTerL" style="background:#64748b; width:0%;"></div>
+                        <div class="stat-bar-fill" id="barTerV" style="background:#38bdf8; width:0%;"></div>
+                    </div>
+                </div>
+                <ul class="log-list" id="logList"><li style="color:#94a3b8; font-style:italic; text-align: center; margin-top: 10px;">Esperando acción...</li></ul>
+            </div>
+        </div>
+
+        <div class="bottom-panel">
+            <div class="teams-grid">
+                <button class="team-btn team-btn-local" id="btnTeamL" onclick="selectTeam('Local')">Posesión: Local</button>
+                <button class="team-btn team-btn-visitor" id="btnTeamV" onclick="selectTeam('Visitante')">Posesión: Visitante</button>
+            </div>
+            <div class="columns-3-container">
+                <div class="column" id="col1">
+                    <div class="col-header-wrap">
+                        <button class="col-move-btn" onclick="moveColumn('GENERAL', 'left')">◀</button>
+                        <div class="col-header">1. General</div>
+                        <button class="col-move-btn" onclick="moveColumn('GENERAL', 'right')">▶</button>
+                    </div>
+                    <div id="col1-content" class="col-content"></div>
+                    
+                    <div id="touch-popup">
+                        <h4 style="margin:0; font-size:0.8rem; color:var(--secondary); border-bottom:1px solid #cbd5e1; padding-bottom:4px; display:flex; justify-content:space-between;">
+                            Configuración Touch
+                            <button onclick="closeTouchPopup()" style="background:none; border:none; color:var(--danger); font-weight:bold; cursor:pointer; font-size:0.9rem;">X</button>
+                        </h4>
+                        
+                        <div style="flex:1; display:flex; flex-direction:column; gap:8px;">
+                            <div>
+                                <label style="font-size:0.7rem; font-weight:bold; color:#475569; display:block; margin-bottom:4px;">Jugadores en Lineout:</label>
+                                <div style="display:flex; gap: 8px; align-items: center; margin-bottom:4px;">
+                                    <input type="text" id="touch-players-input" class="form-control" style="width: 60px; font-size:1.1rem; padding: 4px; text-align:center; font-weight:bold; color:var(--primary); background:#fff;" placeholder="" readonly>
+                                    <button onclick="document.getElementById('touch-players-input').value=''" style="background:#e2e8f0; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:0.75rem; font-weight:bold; color:#475569;">Borrar</button>
+                                </div>
+                                <div class="btn-group touch-grid-0-9" id="touch-players-group">
+                                    <div class="btn-group-item" onclick="appendTouchPlayer('1')">1</div>
+                                    <div class="btn-group-item" onclick="appendTouchPlayer('2')">2</div>
+                                    <div class="btn-group-item" onclick="appendTouchPlayer('3')">3</div>
+                                    <div class="btn-group-item" onclick="appendTouchPlayer('4')">4</div>
+                                    <div class="btn-group-item" onclick="appendTouchPlayer('5')">5</div>
+                                    <div class="btn-group-item" onclick="appendTouchPlayer('6')">6</div>
+                                    <div class="btn-group-item" onclick="appendTouchPlayer('7')">7</div>
+                                    <div class="btn-group-item" onclick="appendTouchPlayer('8')">8</div>
+                                    <div class="btn-group-item" onclick="appendTouchPlayer('9')">9</div>
+                                    <div class="btn-group-item" onclick="appendTouchPlayer('0')">0</div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label style="font-size:0.7rem; font-weight:bold; color:#475569; display:block; margin-bottom:4px;">Tipo de Formación:</label>
+                                <div class="btn-group" id="touch-formation-group"></div>
+                                <input type="hidden" id="touch-formation-group-val">
+                            </div>
+
+                            <div>
+                                <label style="font-size:0.7rem; font-weight:bold; color:#475569; display:block; margin-bottom:4px;">Posición de Lanzamiento:</label>
+                                <div class="btn-group" id="touch-position-group"></div>
+                                <input type="hidden" id="touch-position-group-val">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column" id="col2">
+                    <div class="col-header-wrap" style="border-bottom-color:var(--secondary)">
+                        <button class="col-move-btn" onclick="moveColumn('MODULO', 'left')">◀</button>
+                        <div class="col-header" id="col2Header" style="color:var(--secondary)">2. Módulo</div>
+                        <button class="col-move-btn" onclick="moveColumn('MODULO', 'right')">▶</button>
+                    </div>
+                    <div id="col2-content" class="col-content"></div>
+                </div>
+                <div class="column" id="col3">
+                    <div class="col-header-wrap" style="border-bottom-color:var(--warning)">
+                        <button class="col-move-btn" onclick="moveColumn('SUBFASES', 'left')">◀</button>
+                        <div class="col-header" style="color:var(--warning)">3. Subfases</div>
+                        <button class="col-move-btn" onclick="moveColumn('SUBFASES', 'right')">▶</button>
+                    </div>
+                    <div id="col3-content" class="col-content"><div class="subfase-placeholder">Esperando fase...</div></div>
+                </div>
+            </div>
+            <div class="controls-row">
+                <button class="btn-undo" id="btnUndo" onclick="undoLastAction()" title="Deshacer última acción (Ctrl+Z)">↩️ Deshacer</button>
+                <button class="btn-redo" id="btnRedo" onclick="redoLastAction()" title="Rehacer acción (Ctrl+Y)">↪️ Rehacer</button>
+                <input type="text" id="notesInput" class="notes-input" placeholder="Añadir nota al último evento..." onkeypress="if(event.key === 'Enter') attachTextNoteToLastEvent()">
+                <button class="btn-text-note" onclick="attachTextNoteToLastEvent()" title="Adjuntar texto escrito al último evento">📝</button>
+                <button class="btn-mic" id="btnMic" onclick="toggleVoiceDictation()" title="Añadir nota de voz al último evento">🎤</button>
+                <div class="status-text" id="statusBar">Estado: Listo</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwBwRm5R6xne2FCfHR978DhTOmubo21DKTyKLWfk5IOfpGJBOyh_prsupXUAnEIaL4f/exec";
+        let currentUser = null;
+
+        const dbName = "RuggerMatchDB";
+        const storeName = "offlineUploads";
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(dbName, 1);
+                request.onupgradeneeded = (e) => {
+                    e.target.result.createObjectStore(storeName, { keyPath: "id", autoIncrement: true });
+                };
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function saveToQueue(payloadData) {
+            const db = await openDB();
+            const tx = db.transaction(storeName, "readwrite");
+            tx.objectStore(storeName).add({ payload: payloadData, timestamp: Date.now() });
+            return new Promise(resolve => { tx.oncomplete = resolve; });
+        }
+
+        async function processQueue() {
+            if (!navigator.onLine) return;
+            try {
+                const db = await openDB();
+                const tx = db.transaction(storeName, "readonly");
+                const store = tx.objectStore(storeName);
+                const request = store.getAll();
+                
+                request.onsuccess = async () => {
+                    const items = request.result;
+                    for (const item of items) {
+                        try {
+                            const response = await fetch(GAS_URL, {
+                                method: 'POST',
+                                body: JSON.stringify(item.payload),
+                                headers: { 'Content-Type': 'text/plain' }
+                            });
+                            const result = await response.json();
+                            if (result.status === 'success') {
+                                const delTx = db.transaction(storeName, "readwrite");
+                                delTx.objectStore(storeName).delete(item.id);
+                                document.getElementById('statusBar').innerText = "Estado: Cola offline sincronizada";
+                            }
+                        } catch (e) {
+                            break; 
+                        }
+                    }
+                };
+            } catch(e) {}
+        }
+
+        window.addEventListener('online', processQueue);
+
+        function handleGoogleLogin(response) {
+            const payload = parseJwt(response.credential);
+            const userId = payload.sub;
+
+            // Lista Blanca de Cliente (Debe coincidir con la del backend)
+            const allowedUsers = ["111156861575560627970"]; 
+
+            if (!allowedUsers.includes(userId)) {
+                showAppAlert("Acceso denegado: Usuario no autorizado para el piloto.", "Error de Autorización");
+                return; // Bloquea el acceso y mantiene al usuario en la pantalla de login
+            }
+
+            currentUser = { email: payload.email, name: payload.name, id: userId };
+            document.getElementById('screen-login').style.display = 'none';
+            document.getElementById('screen-login').classList.remove('active');
+            
+            if(st.time === 0 && st.log.length === 0) {
+                requestFullscreenAndNav('screen-setup');
+            }
+        }
+
+        function parseJwt(token) {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+
+        async function uploadMatchToCloud() {
+            if(!currentUser) { showAppAlert("Usuario no autenticado"); return; }
+            
+            const allData = st.masterLog.concat(st.log);
+            if(allData.length === 0) { showAppAlert("No hay eventos registrados."); return; }
+            if(st.running) toggleTimer();
+            
+            const head = "Match ID,Sesión,Timestamp,Tiempo Partido,Estado Registro,Modulo,Equipo Local,Equipo Visitante,Marcador Local,Marcador Visitante,Posesión,Equipo Acción,Es Mi Equipo,Categoría,Fase,Etiqueta Personalizada Fase,Subfase,Etiqueta Personalizada Subfase,Zona,Canal,Notas,Touch Jugadores,Touch Formacion,Touch Posicion Lanzamiento\n";
+            const rows = allData.map(e => {
+                const isMyTeam = e.teamKey ? (e.teamKey === st.myTeam ? "TRUE" : "FALSE") : "";
+                const statusStr = e.status || "active";
+                return `"${st.matchId}","${e.session}","${e.ts}","${e.time}","${statusStr}","${e.mod}","${st.teams.Local.s}","${st.teams.Visitante.s}","${e.sL}","${e.sV}","${e.pos}","${e.action}","${isMyTeam}","${e.cat}","${e.ev}","${e.action === 'Sistema' ? '' : e.customEv}","${e.sub || ''}","${(e.sub && e.action !== 'Sistema') ? e.customSub : ''}","${e.zone.split('-')[0]}","${e.zone.split('-')[1]}","${e.notes.replace(/\"/g,'')}","${e.touchJugadores || ''}","${e.touchFormacion || ''}","${e.touchLanzamiento || ''}"`;
+            }).join("\n");
+            
+            const payload = CryptoJS.AES.encrypt(head + rows, "RuggerMatch2026").toString();
+            
+            const requestData = {
+                action: 'uploadMatch',
+                userId: currentUser.id,
+                matchId: st.matchId,
+                payload: payload
+            };
+
+            document.getElementById('statusBar').innerText = "Subiendo a nube...";
+            
+            try {
+                const response = await fetch(GAS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(requestData),
+                    headers: { 'Content-Type': 'text/plain' }
+                });
+                
+                const result = await response.json();
+                if(result.status === 'success') {
+                    showAppAlert("Archivo encriptado subido a Drive correctamente.", "Sincronización Exitosa");
+                    document.getElementById('statusBar').innerText = "Estado: Guardado en nube";
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                await saveToQueue(requestData);
+                showAppAlert("Fallo de red. El partido ha sido encolado en la memoria de la tableta. Se subirá automáticamente al recuperar la conexión WiFi.", "Modo Offline Activo");
+                document.getElementById('statusBar').innerText = "Estado: Encolado offline";
+            }
+        }
+
+        const MODULES = {
+            ATAQUE: { icon: '⚡', name: 'Ataque', desc: 'Continuidad, ventaja, rucks.', color: '#8b5cf6' },
+            DEFENSA: { icon: '🛡️', name: 'Defensa', desc: 'Placajes, jackal, presión.', color: '#0284c7' },
+            ESTATICAS: { icon: '📐', name: 'Estáticas', desc: 'Melée, Touch, Salidas.', color: '#f59e0b' },
+            JUEGO_PIE: { icon: '👟', name: 'Juego Pie', desc: 'Patadas y transiciones.', color: '#10b981' }
+        };
+
+        const BASE_GENERAL = [
+            "Touch a favor", "Touch en contra", "Melée a favor", "Melée en contra",
+            "Ensayo", "Conversión", "Drop", "Golpe castigo a favor", "Golpe castigo en contra",
+            "Golpe franco a favor", "Golpe franco en contra", "Comodín G1", "Comodín G2"
+        ];
+        
+        const MOD_EVENTS = {
+            ATAQUE: [
+                "Línea de ventaja ganada", "Línea de ventaja no ganada", "Maul", "Ruck",
+                "Placaje >> Ruck", "Placaje en contra", "Patada", "Chute a palos",
+                "Comodín A1", "Comodín A2"
+            ],
+            DEFENSA: [
+                "Golpe franco", "Balón adelantado", "Golpe de castigo en contra", "Placaje a favor",
+                "Comodín D1", "Comodín D2"
+            ],
+            ESTATICAS: ["Melée Propia", "Melée Rival", "Touch Propia", "Touch Rival", "Maul desde Touch", "Strike Play", "Salida Centro", "Comodín E1", "Comodín E2"],
+            JUEGO_PIE: ["Box Kick", "Up & Under", "Grubber", "Exit", "Cross-kick", "Recepción Aérea", "Comodín P1", "Comodín P2"]
+        };
+
+        const ALL_MODS_MASTER = {
+            'GENERAL': BASE_GENERAL,
+            'ATAQUE': MOD_EVENTS.ATAQUE,
+            'DEFENSA': MOD_EVENTS.DEFENSA,
+            'ESTATICAS': MOD_EVENTS.ESTATICAS,
+            'JUEGO_PIE': MOD_EVENTS.JUEGO_PIE
+        };
+
+        const ALL_EVENTS = [...new Set([...BASE_GENERAL, ...Object.keys(MOD_EVENTS).flatMap(k => MOD_EVENTS[k])])];
+
+        const SUB_EVENTS = {
+            "Touch a favor": ["Ganada con presión", "Ganada con 1 pase de calidad (>>9)", "Ganada con 2 pases de calidad (>>10)", "Perdida por mal lanzamiento", "Perdida por salto a destiempo", "Perdida por mala coordinación lanzador-saltador", "Perdida por amago de lanzamiento", "Rápida"],
+            "Touch en contra": ["Recuperada", "Perdida"],
+            "Melée a favor": ["Ganada con presión", "Ganada con 1 pase de calidad (8>9)", "Ganada con 1 pase de calidad (9>10)", "Ganada con 2 pases de calidad (8>9>10)", "Perdida", "Golpe de castigo a favor", "Golpe de castigo en contra"],
+            "Melée en contra": ["Recuperada", "Perdida", "Golpe de castigo a favor", "Golpe de castigo en contra"],
+            "Ensayo": ["Delantera", "3/4", "Rotura de línea", "Maul"],
+            "Conversión": ["Acierto", "Fallo"],
+            "Drop": ["Acierto", "Fallo"],
+            "Golpe castigo a favor": ["A palos convertido", "A palos fallado", "A touch", "Juego abierto"],
+            "Golpe castigo en contra": ["A palos convertido", "A palos fallado", "A touch", "Juego abierto"],
+            "Golpe de castigo en contra": ["Fuera de juego", "En punto de encuentro por tirarse", "En punto de encuentro por retenido", "En punto de encuentro por pescar"],
+            "Maul": ["Liberación", "Injugable"],
+            "Ruck": ["Liberación"],
+            "Placaje >> Ruck": ["Liberación"],
+            "Placaje en contra": ["Positivo", "Neutro", "Negativo"],
+            "Chute a palos": ["Conversión", "Fallo"],
+            "Placaje a favor": ["Positivo", "Neutro", "Negativo"]
+        };
+
+        const RULES = {
+            "Touch a favor|Perdida por mal lanzamiento": { poss: true },
+            "Touch a favor|Perdida por salto a destiempo": { poss: true },
+            "Touch a favor|Perdida por mala coordinación lanzador-saltador": { poss: true },
+            "Touch a favor|Perdida por amago de lanzamiento": { poss: true },
+            "Touch en contra|Recuperada": { poss: true },
+            "Melée a favor|Perdida": { poss: true },
+            "Melée a favor|Golpe de castigo en contra": { poss: true },
+            "Melée en contra|Recuperada": { poss: true },
+            "Melée en contra|Golpe de castigo a favor": { poss: true },
+            "Ensayo|Delantera": { pts: 5 },
+            "Ensayo|3/4": { pts: 5 },
+            "Ensayo|Rotura de línea": { pts: 5 },
+            "Ensayo|Maul": { pts: 5 },
+            "Conversión|Acierto": { pts: 2 },
+            "Drop|Acierto": { pts: 3 },
+            "Golpe castigo a favor|A palos convertido": { pts: 3 },
+            "Golpe castigo en contra|A palos convertido": { poss: true, pts: 3 },
+            "Golpe castigo en contra|A palos fallado": { poss: true },
+            "Golpe castigo en contra|A touch": { poss: true },
+            "Golpe castigo en contra|Juego abierto": { poss: true },
+            "Golpe de castigo en contra|Fuera de juego": { poss: true },
+            "Golpe de castigo en contra|En punto de encuentro por tirarse": { poss: true },
+            "Golpe de castigo en contra|En punto de encuentro por retenido": { poss: true },
+            "Golpe de castigo en contra|En punto de encuentro por pescar": { poss: true },
+            "Balón adelantado|": { poss: true }
+        };
+
+        const defaultDict = {
+            '__touchFormations': '2-2-2, 2-3-2, 1-4-1',
+            '__touchPositions': '1, 2, 3, 4, 5'
+        };
+        ALL_EVENTS.forEach(e => defaultDict[e] = e);
+        Object.keys(SUB_EVENTS).forEach(parent => { SUB_EVENTS[parent].forEach(sub => { defaultDict[`${parent}|${sub}`] = sub; }); });
+
+        let dict = {...defaultDict};
+        try { const stored = localStorage.getItem('ruggerDict'); if(stored) dict = {...defaultDict, ...JSON.parse(stored)}; } catch(e) {}
+
+        const STATE_KEY = 'ruggerMatch_v05228_state';
+        
+        let st = { 
+            matchId: null,
+            mod: 'ATAQUE', team: null, myTeam: 'Local', zone: 'Z4-Central', running: false, time: 0, period: '1ª Parte', pending: null, 
+            awaitingZoneFor: null,
+            log: [], masterLog: [], redoLog: [], session: 1, timer: null, isFlipped: false, areZonesHidden: false,
+            teams: { Local: { l: 'Local', s: 'LOC' }, Visitante: { l: 'Visitante', s: 'VIS' } },
+            stats: { pos: { Local: 0, Visitante: 0 }, ter: { 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0 } },
+            layout: { modules: {}, colOrder: ['GENERAL', 'MODULO', 'SUBFASES'] },
+            editMode: false, moveSource: null, adminUnlocked: false, wasRunningBeforeAdmin: false,
+            lastTick: 0 
+        };
+
+        function clearAllStates() {
+            const keysToRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('ruggerMatch_v')) {
+                    keysToRemove.push(key);
+                }
+            }
+            keysToRemove.forEach(k => localStorage.removeItem(k));
+        }
+
+        let recognition; let isRecordingVoice = false; let micPermissionGranted = false;
+        function checkMicrophonePermission() {
+            const btnMic = document.getElementById('btnMic');
+            if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+                if(btnMic) { btnMic.disabled = true; btnMic.style.opacity = '0.5'; } return;
+            }
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                    micPermissionGranted = true; if(btnMic) { btnMic.disabled = false; btnMic.style.opacity = '1'; }
+                    stream.getTracks().forEach(track => track.stop());
+                }).catch(err => { micPermissionGranted = false; if(btnMic) { btnMic.disabled = true; btnMic.style.opacity = '0.5'; } });
+            }
+        }
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition(); recognition.lang = 'es-ES'; recognition.continuous = false; recognition.interimResults = false; 
+            recognition.onresult = function(e) { attachVoiceNoteToLastEvent(e.results[0][0].transcript); };
+            recognition.onerror = function(e) { document.getElementById('statusBar').innerText = `⚠️ Error micro: ${e.error}`; stopVoiceDictationUI(); };
+            recognition.onend = stopVoiceDictationUI;
+        }
+        function toggleVoiceDictation() {
+            if (!micPermissionGranted) { showAppAlert("⚠️ Activa permisos de micrófono en el navegador."); return; }
+            const activeEvents = st.log.filter(e => e.status !== 'revoked by user');
+            if (activeEvents.length === 0) { showAppAlert("⚠️ Registra un evento primero para adjuntarle la nota."); return; }
+            if (isRecordingVoice) { recognition.stop(); } else {
+                isRecordingVoice = true; document.getElementById('btnMic').classList.add('recording');
+                document.getElementById('statusBar').innerText = "🎙️ Escuchando..."; recognition.start();
+            }
+        }
+        function stopVoiceDictationUI() { isRecordingVoice = false; const btn = document.getElementById('btnMic'); if(btn) btn.classList.remove('recording'); }
+        function attachVoiceNoteToLastEvent(text) {
+            let last = null;
+            for (let i = st.log.length - 1; i >= 0; i--) {
+                if (st.log[i].status !== 'revoked by user') { last = st.log[i]; break; }
+            }
+            if (!last) return;
+            last.notes += (last.notes ? " | " : "") + "[Voz]: " + text;
+            document.getElementById('statusBar').innerText = `✅ Voz adjuntada a ${last.ev || last.customEv}`; updateLogUI(); saveState(); 
+        }
+        function attachTextNoteToLastEvent() {
+            const input = document.getElementById('notesInput'); const text = input.value.trim();
+            let last = null;
+            for (let i = st.log.length - 1; i >= 0; i--) {
+                if (st.log[i].status !== 'revoked by user') { last = st.log[i]; break; }
+            }
+            if (!text || !last) { if(!last) showAppAlert("Registra un evento primero."); return; }
+            last.notes += (last.notes ? " | " : "") + "[Texto]: " + text;
+            document.getElementById('statusBar').innerText = `✅ Nota adjuntada a ${last.ev || last.customEv}`; input.value = ''; updateLogUI(); saveState();
+        }
+
+        function showAppAlert(msg, title = "⚠️ Aviso") {
+            document.getElementById('alert-title').innerText = title; document.getElementById('alert-message').innerText = msg; document.getElementById('modal-alert').classList.add('active');
+        }
+        function showAppConfirm(msg, onYes, onNo = null, title = "Confirmación", yesText = "Aceptar", noText = "Cancelar", isDanger = false) {
+            document.getElementById('confirm-title').innerText = title; document.getElementById('confirm-message').innerText = msg;
+            const btnYes = document.getElementById('btn-confirm-yes'); const btnNo = document.getElementById('btn-confirm-no');
+            btnYes.innerText = yesText; btnNo.innerText = noText; btnYes.style.background = isDanger ? 'var(--danger)' : 'var(--success)';
+            btnYes.onclick = () => { document.getElementById('modal-confirm').classList.remove('active'); if(onYes) onYes(); };
+            btnNo.onclick = () => { document.getElementById('modal-confirm').classList.remove('active'); if(onNo) onNo(); };
+            document.getElementById('modal-confirm').classList.add('active');
+        }
+
+        function saveState() {
+            try {
+                const sL = document.getElementById('scoreL').value; const sV = document.getElementById('scoreV').value;
+                const stateToSave = {
+                    matchId: st.matchId,
+                    mod: st.mod, time: st.time, period: st.period, log: st.log, masterLog: st.masterLog, redoLog: st.redoLog,
+                    session: st.session, teams: st.teams, stats: st.stats, zone: st.zone, myTeam: st.myTeam,
+                    isFlipped: st.isFlipped, areZonesHidden: st.areZonesHidden, sL: sL, sV: sV, layout: st.layout,
+                    lastTick: st.lastTick, awaitingZoneFor: st.awaitingZoneFor
+                };
+                localStorage.setItem(STATE_KEY, JSON.stringify(stateToSave));
+            } catch(e) {}
+        }
+
+        function loadState() {
+            try {
+                let saved = localStorage.getItem(STATE_KEY);
+                
+                if (!saved) {
+                    let keys = [];
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        if (key && key.startsWith('ruggerMatch_v')) {
+                            keys.push(key);
+                        }
+                    }
+                    
+                    keys.sort().reverse();
+                    
+                    for (let i = 0; i < keys.length; i++) {
+                        const val = localStorage.getItem(keys[i]);
+                        if (val) {
+                            saved = val;
+                            break;
+                        }
+                    }
+                }
+                
+                if (saved) {
+                    const p = JSON.parse(saved);
+                    st.matchId = p.matchId || null;
+                    st.mod = p.mod || 'ATAQUE'; st.time = p.time || 0; st.period = p.period || '1ª Parte';
+                    st.log = p.log || []; st.masterLog = p.masterLog || []; st.redoLog = p.redoLog || []; st.session = p.session || 1;
+                    st.myTeam = p.myTeam || 'Local';
+                    if(p.teams) st.teams = p.teams; if(p.stats) st.stats = p.stats;
+                    st.zone = p.zone || 'Z4-Central'; st.isFlipped = p.isFlipped || false; st.areZonesHidden = p.areZonesHidden || false;
+                    st.awaitingZoneFor = p.awaitingZoneFor || null;
+                    
+                    if(p.layout && p.layout.modules && Object.keys(p.layout.modules).length > 0) {
+                        st.layout = p.layout;
+                        if(!st.layout.colOrder) st.layout.colOrder = ['GENERAL', 'MODULO', 'SUBFASES'];
+                    } else {
+                        initDefaultLayout();
+                    }
+
+                    if(st.teams.Local) { document.getElementById('nameL').value = st.teams.Local.l; document.getElementById('shortL').value = st.teams.Local.s; }
+                    if(st.teams.Visitante) { document.getElementById('nameV').value = st.teams.Visitante.l; document.getElementById('shortV').value = st.teams.Visitante.s; }
+                    
+                    if (st.myTeam === 'Visitante') document.getElementById('isMyTeamV').checked = true;
+                    else document.getElementById('isMyTeamL').checked = true;
+
+                    document.getElementById('scoreL').value = p.sL || 0; document.getElementById('scoreV').value = p.sV || 0;
+                    document.getElementById('periodToggle').innerText = st.period; document.getElementById('sessionDisplay').innerText = `#${st.session}`;
+                    if (st.areZonesHidden) document.body.classList.add('hide-zone-labels');
+                    document.getElementById('btnFlipPitch').innerText = st.isFlipped ? "⬅ SENTIDO DE ATAQUE" : "SENTIDO DE ATAQUE ➔";
+                    
+                    st.running = false; st.adminUnlocked = false; st.wasRunningBeforeAdmin = false;
+                    return true;
+                }
+            } catch (e) {}
+            
+            initDefaultLayout();
+            return false;
+        }
+        
+        function initDefaultLayout() {
+            st.layout.modules = {
+                'GENERAL': BASE_GENERAL.filter(e => !e.startsWith('Comodín')),
+                'ATAQUE': MOD_EVENTS.ATAQUE.filter(e => !e.startsWith('Comodín')),
+                'DEFENSA': MOD_EVENTS.DEFENSA.filter(e => !e.startsWith('Comodín')),
+                'ESTATICAS': MOD_EVENTS.ESTATICAS.filter(e => !e.startsWith('Comodín')),
+                'JUEGO_PIE': MOD_EVENTS.JUEGO_PIE.filter(e => !e.startsWith('Comodín'))
+            };
+            st.layout.colOrder = ['GENERAL', 'MODULO', 'SUBFASES'];
+        }
+
+        function hardResetData() {
+            showAppConfirm(
+                "Esto borrará permanentemente todos los datos del partido actual en esta tableta.",
+                () => { clearAllStates(); location.reload(); }, null, "🛑 PELIGRO", "Borrar Datos", "Cancelar", true
+            );
+        }
+
+        window.requestFullscreenAndNav = function(id) {
+            const docEl = document.documentElement;
+            const rfs = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+            try { if (!document.fullscreenElement && rfs) { const promise = rfs.call(docEl); if (promise && typeof promise.catch === 'function') promise.catch(() => {}); }
+            } catch (e) {}
+            navigateToScreen(id);
+        };
+
+        window.navigateToScreen = function(id) {
+            document.querySelectorAll('.spa-screen').forEach(s => { s.style.display = 'none'; s.classList.remove('active'); });
+            const target = document.getElementById(id); if (target) { target.style.display = 'flex'; target.classList.add('active'); }
+        };
+
+        function getFullTimestamp() {
+            const d = new Date(); const pad = n => n.toString().padStart(2, '0');
+            const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+            return `${pad(d.getDate())} ${months[d.getMonth()]} ${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+        }
+
+        function checkAdminUnlock(callback) {
+            const activeEvents = st.log.filter(e => e.status !== 'revoked by user');
+            const isLocked = (st.time > 0 || activeEvents.length > 0 || st.session > 1);
+            if (isLocked && !st.adminUnlocked) {
+                showAppConfirm(
+                    "El partido está en curso. Modificar la estructura ahora pausará el cronómetro.\n\n¿Estás seguro de querer desbloquear la edición?",
+                    () => { st.wasRunningBeforeAdmin = st.running; if (st.running) toggleTimer(); st.adminUnlocked = true; updateLockState(); callback(); },
+                    null, "⚠️ MODO ADMINISTRADOR", "Desbloquear", "Cancelar", true
+                );
+            } else { callback(); }
+        }
+
+        function updateLockState() {
+            const activeEvents = st.log.filter(e => e.status !== 'revoked by user');
+            const isLocked = (st.time > 0 || activeEvents.length > 0 || st.session > 1) && !st.adminUnlocked;
+            const btnEdit = document.getElementById('btnEditLayout');
+            if (btnEdit) {
+                if (isLocked) {
+                    btnEdit.title = "Layout bloqueado: Requiere desbloqueo de Admin";
+                    btnEdit.style.opacity = '0.6';
+                    if (st.editMode) toggleEditMode();
+                } else {
+                    btnEdit.title = "Editar disposición de botones";
+                    btnEdit.style.opacity = '1';
+                }
+            }
+        }
+
+        function initSetup() {
+            const recovered = loadState();
+            const mg = document.getElementById('modulesGrid'); mg.innerHTML = '';
+            Object.keys(MODULES).forEach(k => {
+                const m = MODULES[k]; const d = document.createElement('div');
+                d.className = `module-card ${k === st.mod ? 'selected' : ''}`;
+                d.innerHTML = `<div style="font-size:1.6rem; margin-bottom:4px;">${m.icon}</div><div style="font-weight:bold; font-size:0.85rem; color:var(--primary);">${m.name}</div><div style="font-size:0.65rem; color:#64748b; margin-top:4px;">${m.desc}</div>`;
+                d.onclick = () => { document.querySelectorAll('.module-card').forEach(c => c.classList.remove('selected')); d.classList.add('selected'); st.mod = k; saveState(); };
+                mg.appendChild(d);
+            });
+            initPitch(); applyColumnOrder(); updateLockState(); checkMicrophonePermission();
+            if(recovered && (st.time > 0 || st.log.length > 0)) { document.getElementById('modal-recovery').classList.add('active'); } 
+            else { document.getElementById('screen-login').style.display = 'flex'; }
+        }
+
+        function recoverSession() { document.getElementById('modal-recovery').classList.remove('active'); startMatch(); }
+        function discardSession() { document.getElementById('modal-recovery').classList.remove('active'); clearAllStates(); location.reload(); }
+
+        function getSafeId(mod, ev) { return `chk_${mod}_${ev.replace(/[^a-zA-Z0-9]/g, '_')}`; }
+
+        window.handleVisChange = function(chk, mod, ev) {
+            if (chk.checked) {
+                let otherChk = Array.from(document.querySelectorAll(`.visibility-toggle[data-ev="${ev}"]`)).find(c => c !== chk && c.checked);
+                if (otherChk) {
+                    let otherMod = otherChk.getAttribute('data-mod');
+                    chk.checked = false; 
+                    showAppConfirm(
+                        `La fase '${ev}' ya está asignada al módulo ${otherMod}.\nSolo puede estar activa en un módulo a la vez.\n\n¿Deseas moverla a ${mod}?`,
+                        () => {
+                            otherChk.checked = false;
+                            chk.checked = true;
+                        },
+                        null, "Conflicto de Módulo", "Mover", "Cancelar"
+                    );
+                }
+            }
+        };
+
+        function openSettings() {
+            const activeEvents = st.log.filter(e => e.status !== 'revoked by user');
+            const isLocked = (st.time > 0 || activeEvents.length > 0 || st.session > 1) && !st.adminUnlocked;
+            document.getElementById('dictLockWarning').style.display = isLocked ? 'block' : 'none';
+            
+            const df = document.getElementById('dictForm'); 
+            
+            let html = `<div style="grid-column: 1 / -1; background:white; border:1px solid #e2e8f0; border-radius:6px; padding:12px; margin-bottom:5px;">
+                <h4 style="margin:0 0 10px 0; color:var(--primary); border-bottom:2px solid #f1f5f9; padding-bottom:6px;">Configuración Específica de Touch</h4>
+                <div style="display:flex; gap:15px; flex-wrap:wrap;">
+                    <div style="flex:1; min-width:200px;">
+                        <label style="display:block; font-size:0.75rem; font-weight:bold; margin-bottom:4px; color:#475569;">Formaciones (separadas por coma):</label>
+                        <input type="text" data-dict-key="__touchFormations" class="form-control dict-input" value="${dict['__touchFormations'] || '2-2-2, 2-3-2, 1-4-1'}" ${isLocked?'disabled':''}>
+                    </div>
+                    <div style="flex:1; min-width:200px;">
+                        <label style="display:block; font-size:0.75rem; font-weight:bold; margin-bottom:4px; color:#475569;">Posiciones Lanzamiento (separadas por coma):</label>
+                        <input type="text" data-dict-key="__touchPositions" class="form-control dict-input" value="${dict['__touchPositions'] || '1, 2, 3, 4, 5'}" ${isLocked?'disabled':''}>
+                    </div>
+                </div>
+            </div>`;
+            
+            const genBlock = (ev, color, mod) => {
+                let isChecked = st.layout.modules[mod] && st.layout.modules[mod].includes(ev);
+                let visToggle = `<input type="checkbox" id="${getSafeId(mod, ev)}" class="visibility-toggle" data-ev="${ev}" data-mod="${mod}" onchange="handleVisChange(this, '${mod}', '${ev}')" ${isChecked ? 'checked' : ''} ${isLocked?'disabled':''} title="Mostrar en interfaz" style="margin-right: 4px; width: 16px; height: 16px; flex-shrink: 0; cursor: ${isLocked?'not-allowed':'pointer'};">`;
+
+                let h = `<div style="margin-bottom:8px; width:100%;"><div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; background:#f1f5f9; padding:6px 8px; border-radius:4px; margin-bottom:4px; border-left:4px solid ${color};">
+                    <div style="display:flex; align-items:center; flex:1; gap:6px; overflow:hidden;">
+                        ${visToggle}
+                        <span style="color:var(--primary); font-weight:bold; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:0.75rem;" title="${ev}">${ev}</span>
+                        <input type="text" data-dict-key="${ev}" class="form-control dict-input" style="width:110px; flex-shrink:0; padding:4px; font-size:0.75rem; background:#fff; border:1px solid #cbd5e1; border-radius:4px;" value="${dict[ev] || ev}" ${isLocked?'disabled':''} placeholder="Renombrar...">
+                    </div></div>`;
+                
+                if (SUB_EVENTS[ev]) {
+                    h += `<div style="padding-left:12px; border-left:2px dotted #cbd5e1; margin-left:10px;">`;
+                    SUB_EVENTS[ev].forEach(sub => {
+                        const ck = `${ev}|${sub}`;
+                        h += `<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; margin-bottom:3px;"><span style="color:#64748b; max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${sub}">↳ ${sub}</span><input type="text" data-dict-key="${ck}" class="form-control dict-input" style="width:110px; flex-shrink:0; padding:3px; font-size:0.7rem; background:#fff; border:1px solid #cbd5e1; border-radius:4px;" value="${dict[ck] || sub}" ${isLocked?'disabled':''}></div>`;
+                    });
+                    h += `</div>`;
+                }
+                return h + `</div>`;
+            };
+
+            Object.keys(ALL_MODS_MASTER).forEach(mod => {
+                const title = mod === 'GENERAL' ? '1. General' : `Módulo: ${MODULES[mod].name}`;
+                const clr = mod === 'GENERAL' ? 'var(--secondary)' : MODULES[mod].color;
+                html += `<div style="background:white; border:1px solid #e2e8f0; border-radius:6px; padding:12px; display:flex; flex-direction:column;"><h4 style="margin:0 0 12px 0; color:${clr};">${title}</h4>`;
+                
+                ALL_MODS_MASTER[mod].forEach(ev => {
+                    html += genBlock(ev, clr, mod);
+                }); 
+                html += `</div>`;
+            });
+            
+            df.innerHTML = html; document.getElementById('modal-settings').classList.add('active');
+        }
+
+        function closeSettings() {
+            document.getElementById('modal-settings').classList.remove('active');
+            if (st.adminUnlocked && !st.editMode) { st.adminUnlocked = false; if (st.wasRunningBeforeAdmin) { toggleTimer(); st.wasRunningBeforeAdmin = false; } updateLockState(); }
+        }
+
+        function saveSettings() {
+            document.querySelectorAll('.dict-input').forEach(inp => dict[inp.getAttribute('data-dict-key')] = inp.value.trim() || inp.getAttribute('data-dict-key').split('|').pop());
+            localStorage.setItem('ruggerDict', JSON.stringify(dict)); 
+            
+            Object.keys(ALL_MODS_MASTER).forEach(mod => {
+                let currentOrder = st.layout.modules[mod] || [];
+                let checkedEvents = [];
+                document.querySelectorAll(`.visibility-toggle[data-mod="${mod}"]`).forEach(chk => {
+                    if (chk.checked) checkedEvents.push(chk.getAttribute('data-ev'));
+                });
+                
+                let newOrder = currentOrder.filter(e => checkedEvents.includes(e));
+                checkedEvents.forEach(e => { if (!newOrder.includes(e)) newOrder.push(e); });
+                st.layout.modules[mod] = newOrder;
+            });
+
+            closeSettings(); saveState(); renderColumns();
+        }
+        
+        function dTranslate(k) { return dict[k] || k.split('|').pop(); }
+
+        window.startMatch = function() {
+            if (!st.matchId) {
+                st.matchId = 'RM-' + Date.now().toString(36).toUpperCase() + '-' + Math.floor(Math.random()*1000).toString(16).toUpperCase();
+            }
+
+            const elNameL = document.getElementById('nameL'); const elShortL = document.getElementById('shortL');
+            const elNameV = document.getElementById('nameV'); const elShortV = document.getElementById('shortV');
+            
+            st.myTeam = document.getElementById('isMyTeamL').checked ? 'Local' : 'Visitante';
+
+            let tL = (elNameL && elNameL.value.trim() !== '') ? elNameL.value.trim() : 'Club Local';
+            let tV = (elNameV && elNameV.value.trim() !== '') ? elNameV.value.trim() : 'Club Visitante';
+            let sL = (elShortL && elShortL.value.trim() !== '') ? elShortL.value.trim().substring(0,4).toUpperCase() : tL.substring(0,3).toUpperCase();
+            let sV = (elShortV && elShortV.value.trim() !== '') ? elShortV.value.trim().substring(0,4).toUpperCase() : tV.substring(0,3).toUpperCase();
+            
+            st.teams.Local = { l: tL, s: sL }; st.teams.Visitante = { l: tV, s: sV };
+            
+            const cL = document.getElementById('colorL') ? document.getElementById('colorL').value : '#3b82f6';
+            const cV = document.getElementById('colorV') ? document.getElementById('colorV').value : '#ef4444';
+            document.documentElement.style.setProperty('--border-local', cL); document.documentElement.style.setProperty('--bg-local', cL + '33');
+            document.documentElement.style.setProperty('--border-visitor', cV); document.documentElement.style.setProperty('--bg-visitor', cV + '33');
+            
+            document.getElementById('scoreLblL').innerText = sL; document.getElementById('scoreLblV').innerText = sV;
+            document.getElementById('stLblL').innerText = sL; document.getElementById('stLblV').innerText = sV;
+            document.getElementById('btnTeamL').innerText = `Posesión: ${sL}`; document.getElementById('btnTeamV').innerText = `Posesión: ${sV}`;
+            
+            if(st.team === 'Local') document.getElementById('btnTeamL').classList.add('selected');
+            else if(st.team === 'Visitante') document.getElementById('btnTeamV').classList.add('selected');
+            else {
+                document.getElementById('btnTeamL').classList.remove('selected');
+                document.getElementById('btnTeamV').classList.remove('selected');
+            }
+
+            const mb = document.getElementById('moduleBadge');
+            mb.innerText = `${MODULES[st.mod].icon} MÓDULO ${MODULES[st.mod].name.toUpperCase()}`;
+            mb.style.backgroundColor = MODULES[st.mod].color;
+
+            applyColumnOrder(); renderColumns(); updateTime(); updateStatsUI(); updateLogUI(); initPitch(); updateLockState();
+            navigateToScreen('screen-tracker'); saveState();
+        };
+
+        function toggleTimer() {
+            if(st.running) { clearInterval(st.timer); st.running = false; document.getElementById('statusBar').innerText = "Estado: Juego Pausado."; 
+            } else { 
+                st.running = true; st.lastTick = Date.now();
+                st.timer = setInterval(() => { 
+                    let now = Date.now(); let deltaSeconds = Math.floor((now - st.lastTick) / 1000);
+                    if (deltaSeconds > 0) {
+                        st.time += deltaSeconds; 
+                        if (st.team) st.stats.pos[st.team] += deltaSeconds; 
+                        if (st.zone) st.stats.ter[parseInt(st.zone.match(/\d/)[0])] += deltaSeconds;
+                        st.lastTick += deltaSeconds * 1000; updateTime(); updateStatsUI(); saveState();
+                    }
+                }, 200); 
+                document.getElementById('statusBar').innerText = "Estado: En juego."; 
+            }
+            updateLockState(); saveState();
+        }
+
+        function updateTime() { document.getElementById('timerDisplay').innerText = `${Math.floor(st.time / 60).toString().padStart(2, '0')}:${(st.time % 60).toString().padStart(2, '0')}`; }
+
+        function updateStatsUI() {
+            const totalPos = st.stats.pos.Local + st.stats.pos.Visitante;
+            if (totalPos > 0) {
+                const pctL = Math.round((st.stats.pos.Local / totalPos) * 100);
+                document.getElementById('barPosL').style.width = `${pctL}%`; document.getElementById('barPosV').style.width = `${100-pctL}%`;
+                document.getElementById('lblPosL').innerText = `${st.teams.Local.s} ${pctL}%`; document.getElementById('lblPosV').innerText = `${100-pctL}% ${st.teams.Visitante.s}`;
+            } else {
+                document.getElementById('barPosL').style.width = `0%`; document.getElementById('barPosV').style.width = `0%`;
+                document.getElementById('lblPosL').innerText = `${st.teams.Local.s} 0%`; document.getElementById('lblPosV').innerText = `0% ${st.teams.Visitante.s}`;
+            }
+            const terL = st.stats.ter[4] + st.stats.ter[5] + st.stats.ter[6] + st.stats.ter[7];
+            const terV = st.stats.ter[1] + st.stats.ter[2] + st.stats.ter[3] + st.stats.ter[4];
+            if (terL + terV > 0) {
+                const pctTL = Math.round((terL / (terL + terV)) * 100);
+                document.getElementById('barTerL').style.width = `${pctTL}%`; document.getElementById('barTerV').style.width = `${100-pctTL}%`;
+                document.getElementById('lblTerL').innerText = `Z4-Z7 ${pctTL}%`; document.getElementById('lblTerV').innerText = `${100-pctTL}% Z1-Z4`;
+            } else {
+                document.getElementById('barTerL').style.width = `0%`; document.getElementById('barTerV').style.width = `0%`;
+                document.getElementById('lblTerL').innerText = `Z4-Z7 0%`; document.getElementById('lblTerV').innerText = `0% Z1-Z4`;
+            }
+        }
+
+        function togglePeriod() { 
+            if (!st.running && st.time === 0) return;
+            const prevPeriod = st.period;
+            st.period = st.period === "1ª Parte" ? "2ª Parte" : "1ª Parte"; 
+            document.getElementById('periodToggle').innerText = st.period; 
+            logSystemEvent('Sistema', 'Cambio Periodo', st.period, { period: prevPeriod }); 
+        }
+        
+        function toggleZoneLabels() { st.areZonesHidden = !st.areZonesHidden; document.body.classList.toggle('hide-zone-labels', st.areZonesHidden); saveState(); }
+        function togglePitchFlip() { st.isFlipped = !st.isFlipped; document.getElementById('btnFlipPitch').innerText = st.isFlipped ? "⬅ SENTIDO DE ATAQUE" : "SENTIDO DE ATAQUE ➔"; initPitch(); saveState(); }
+
+        function initPitch() {
+            const pc = document.getElementById('pitchGrid'); pc.innerHTML = '';
+            const chs = st.isFlipped ? ['Der', 'Central', 'Izq'] : ['Izq', 'Central', 'Der'];
+            const zList = st.isFlipped ? [7,6,5,4,3,2,1] : [1,2,3,4,5,6,7];
+            for(let c=0; c<3; c++) {
+                for(let i=0; i<7; i++) {
+                    const z = zList[i]; const ch = chs[c]; const d = document.createElement('div'); 
+                    d.className = `zone z${z} ${st.zone === ('Z'+z+'-'+ch) ? 'selected' : ''}`; d.innerHTML = `<span>Z${z}</span><span>${ch}</span>`;
+                    d.onclick = () => { 
+                        if (!st.running && st.time === 0) { showAppAlert("Debes dar inicio al cronómetro antes de cambiar la zona."); return; }
+                        const prevZone = st.zone;
+                        document.querySelectorAll('.zone').forEach(el=>el.classList.remove('selected')); 
+                        d.classList.add('selected'); st.zone = `Z${z}-${ch}`; 
+                        logSystemEvent('Contexto', 'Cambio Zona', st.zone, { zone: prevZone }); 
+                        
+                        if (st.awaitingZoneFor) {
+                            const pEv = st.awaitingZoneFor.ev;
+                            const pCat = st.awaitingZoneFor.cat;
+                            st.awaitingZoneFor = null;
+                            handleEventClick(pEv, pCat);
+                        }
+                    };
+                    pc.appendChild(d);
+                }
+            }
+        }
+
+        function selectTeam(t, silent = false) { 
+            const prevTeam = st.team;
+            st.team = t; 
+            const btnL = document.getElementById('btnTeamL');
+            const btnV = document.getElementById('btnTeamV');
+            if (btnL) btnL.classList.toggle('selected', t === 'Local'); 
+            if (btnV) btnV.classList.toggle('selected', t === 'Visitante'); 
+            if (!silent && (st.running || st.time > 0) && t && st.teams[t]) {
+                logSystemEvent('Contexto', 'Posesión', st.teams[t].s, { team: prevTeam }); 
+            }
+            saveState(); 
+        }
+
+        function toggleEditMode() {
+            st.editMode = !st.editMode;
+            st.moveSource = null;
+            document.body.classList.toggle('is-editing', st.editMode);
+            const btn = document.getElementById('btnEditLayout');
+            btn.classList.toggle('active', st.editMode);
+            btn.innerText = st.editMode ? '✅ Fin Edición' : '✏️ Layout';
+            
+            if (st.editMode) {
+                document.getElementById('statusBar').innerText = "MODO EDICIÓN: Toca un botón y luego otro para intercambiarlos. Usa flechas en cabeceras para mover columnas.";
+            } else {
+                document.getElementById('statusBar').innerText = "Estado: Listo";
+                if (st.adminUnlocked) { st.adminUnlocked = false; if (st.wasRunningBeforeAdmin) { toggleTimer(); st.wasRunningBeforeAdmin = false; } updateLockState(); }
+                saveState();
+            }
+            renderColumns();
+        }
+
+        function handleMoveClick(colKey, idx) {
+            if (!st.moveSource) {
+                st.moveSource = { colKey, idx };
+                renderColumns();
+                document.getElementById('statusBar').innerText = `Intercambio: Origen seleccionado. Toca destino en la misma columna.`;
+            } else {
+                if (st.moveSource.colKey !== colKey) {
+                    showAppAlert("Solo puedes reordenar botones dentro de la misma columna. Usa el Diccionario para mover fases entre módulos.");
+                    st.moveSource = null; renderColumns(); return;
+                }
+                const src = st.moveSource;
+                const temp = st.layout.modules[src.colKey][src.idx];
+                st.layout.modules[src.colKey][src.idx] = st.layout.modules[colKey][idx];
+                st.layout.modules[colKey][idx] = temp;
+                st.moveSource = null;
+                renderColumns();
+                document.getElementById('statusBar').innerText = `MODO EDICIÓN: Intercambio completado.`;
+                saveState();
+            }
+        }
+
+        function moveColumn(colId, dir) {
+            let order = st.layout.colOrder;
+            let currentIdx = order.indexOf(colId);
+            if (dir === 'left' && currentIdx > 0) {
+                [order[currentIdx], order[currentIdx-1]] = [order[currentIdx-1], order[currentIdx]];
+            } else if (dir === 'right' && currentIdx < 2) {
+                [order[currentIdx], order[currentIdx+1]] = [order[currentIdx+1], order[currentIdx]];
+            }
+            st.layout.colOrder = order;
+            applyColumnOrder(); saveState();
+        }
+
+        function applyColumnOrder() {
+            if(!st.layout.colOrder) st.layout.colOrder = ['GENERAL', 'MODULO', 'SUBFASES'];
+            document.getElementById('col1').style.order = st.layout.colOrder.indexOf('GENERAL');
+            document.getElementById('col2').style.order = st.layout.colOrder.indexOf('MODULO');
+            document.getElementById('col3').style.order = st.layout.colOrder.indexOf('SUBFASES');
+        }
+
+        function renderColumns() {
+            const c1 = document.getElementById('col1-content'); c1.innerHTML = '';
+            const gEvents = st.layout.modules['GENERAL'] || [];
+            gEvents.forEach((e, idx) => {
+                const b = document.createElement('button'); b.className = 'evt-btn'; b.innerText = dTranslate(e);
+                if (st.editMode) {
+                    if (st.moveSource && st.moveSource.colKey === 'GENERAL' && st.moveSource.idx === idx) b.classList.add('move-source');
+                    b.onclick = () => handleMoveClick('GENERAL', idx);
+                } else {
+                    b.onclick = () => handleEventClick(e, 'General');
+                }
+                c1.appendChild(b);
+            });
+
+            document.getElementById('col2Header').innerText = `2. Módulo ${MODULES[st.mod].name.toUpperCase()}`;
+            const c2 = document.getElementById('col2-content'); c2.innerHTML = '';
+            const mEvents = st.layout.modules[st.mod] || [];
+            mEvents.forEach((e, idx) => {
+                const b = document.createElement('button'); b.className = 'evt-btn'; b.innerText = dTranslate(e);
+                b.style.backgroundColor = MODULES[st.mod].color + '11'; b.style.borderColor = MODULES[st.mod].color + '55'; b.style.color = MODULES[st.mod].color;
+                if (st.editMode) {
+                    if (st.moveSource && st.moveSource.colKey === st.mod && st.moveSource.idx === idx) b.classList.add('move-source');
+                    b.onclick = () => handleMoveClick(st.mod, idx);
+                } else {
+                    b.onclick = () => handleEventClick(e, 'Módulo');
+                }
+                c2.appendChild(b);
+            });
+            clearSub();
+        }
+
+        function selectButtonGroupItem(groupId, val, element) {
+            const inputHidden = document.getElementById(groupId + '-val');
+            
+            if (element.classList.contains('selected')) {
+                element.classList.remove('selected');
+                inputHidden.value = '';
+            } else {
+                const btns = document.getElementById(groupId).children;
+                for(let i=0; i<btns.length; i++) {
+                    btns[i].classList.remove('selected');
+                }
+                element.classList.add('selected');
+                inputHidden.value = val;
+            }
+        }
+
+        function appendTouchPlayer(val) {
+            let inp = document.getElementById('touch-players-input');
+            let current = inp.value;
+            
+            if (current === '1' && ['0','1','2','3','4'].includes(val)) {
+                inp.value = current + val;
+            } else {
+                inp.value = val;
+            }
+            
+            let num = parseInt(inp.value);
+            if (num !== 0 && num !== 1 && (num < 2 || num > 14)) {
+                inp.value = '';
+                showAppAlert("El número de jugadores en la touch debe estar entre 2 y 14 (o 0 para descartar el campo).");
+            }
+        }
+
+        function openTouchPopup() {
+            document.getElementById('touch-players-input').value = '';
+
+            const fGroup = document.getElementById('touch-formation-group');
+            fGroup.innerHTML = '';
+            const forms = (dict['__touchFormations'] || '2-2-2, 2-3-2, 1-4-1').split(',').map(s=>s.trim());
+            forms.forEach(f => {
+                const d = document.createElement('div');
+                d.className = 'btn-group-item';
+                d.innerText = f;
+                d.onclick = function() { selectButtonGroupItem('touch-formation-group', f, this); };
+                fGroup.appendChild(d);
+            });
+            document.getElementById('touch-formation-group-val').value = '';
+
+            const pGroup = document.getElementById('touch-position-group');
+            pGroup.innerHTML = '';
+            const pos = (dict['__touchPositions'] || '1, 2, 3, 4, 5').split(',').map(s=>s.trim());
+            pos.forEach(p => {
+                const d = document.createElement('div');
+                d.className = 'btn-group-item';
+                d.innerText = p;
+                d.onclick = function() { selectButtonGroupItem('touch-position-group', p, this); };
+                pGroup.appendChild(d);
+            });
+            document.getElementById('touch-position-group-val').value = '';
+
+            document.getElementById('touch-popup').style.display = 'flex';
+        }
+
+        function closeTouchPopup() {
+            document.getElementById('touch-popup').style.display = 'none';
+        }
+
+        function handleEventClick(ev, cat) {
+            if (st.editMode) return;
+            if (!st.running && st.time === 0) { showAppAlert("Debes dar inicio al cronómetro antes de registrar eventos."); return; }
+            
+            let evLower = ev.toLowerCase();
+            let forcedTeam = null;
+            const excepciones = ["placaje a favor", "placaje en contra"];
+            
+            if (!excepciones.includes(evLower)) {
+                if (evLower.includes('a favor') || evLower.includes('propia')) {
+                    forcedTeam = st.myTeam;
+                } else if (evLower.includes('en contra') || evLower.includes('rival')) {
+                    forcedTeam = st.myTeam === 'Local' ? 'Visitante' : 'Local';
+                }
+            }
+            if (forcedTeam && st.team !== forcedTeam) {
+                selectTeam(forcedTeam, true);
+            }
+
+            if (!st.team && evLower === 'ensayo') {
+                showAppAlert("Selecciona la Posesión en la parte superior antes de registrar un Ensayo.");
+                return;
+            }
+
+            if (evLower.includes('touch')) {
+                let zoneMatch = st.zone.match(/Z([2-6])-(Izq|Der)/);
+                if (!zoneMatch) {
+                    st.awaitingZoneFor = { ev, cat };
+                    document.getElementById('statusBar').innerText = "⚠️ Touch: Clic en Z2-Z6 lateral.";
+                    document.getElementById('col3-content').innerHTML = '<div class="subfase-placeholder" style="color:var(--warning); font-weight:bold;">⚠️ Selecciona una zona lateral (Z2-Z6) en el campo para continuar con la Touch...</div>';
+                    closeTouchPopup();
+                    return;
+                }
+            } else if (evLower === 'ensayo') {
+                let isMyTeamScoring = (st.team === st.myTeam);
+                let validZone = isMyTeamScoring ? st.zone.startsWith('Z7') : st.zone.startsWith('Z1');
+                if (!validZone) {
+                    st.awaitingZoneFor = { ev, cat };
+                    document.getElementById('statusBar').innerText = `⚠️ Ensayo: Clic en Z${isMyTeamScoring?7:1}.`;
+                    document.getElementById('col3-content').innerHTML = `<div class="subfase-placeholder" style="color:var(--danger); font-weight:bold;">⚠️ Para un Ensayo de este equipo, debes marcar la Zona ${isMyTeamScoring?7:1} en el campo...</div>`;
+                    closeTouchPopup();
+                    return;
+                }
+            }
+
+            st.awaitingZoneFor = null;
+            
+            if (evLower === 'touch a favor' || evLower === 'touch propia') {
+                openTouchPopup();
+            } else {
+                closeTouchPopup();
+            }
+
+            st.pending = { ev, cat }; 
+            const subs = SUB_EVENTS[ev]; 
+            const c3 = document.getElementById('col3-content'); c3.innerHTML = '';
+            
+            if(subs && subs.length > 0) {
+                subs.forEach(s => {
+                    const ck = `${ev}|${s}`; const b = document.createElement('button'); b.className = 'evt-btn'; b.innerText = dTranslate(ck);
+                    b.style.backgroundColor = '#eff6ff'; b.style.borderColor = '#93c5fd'; b.style.color = '#1e40af';
+                    b.onclick = () => commitEvent(s, ck); c3.appendChild(b);
+                });
+                document.getElementById('statusBar').innerText = `Seleccionado: ${dTranslate(ev)}. Esperando subfase...`;
+            } else commitEvent("", null);
+        }
+
+        function clearSub() { st.pending = null; document.getElementById('col3-content').innerHTML = '<div class="subfase-placeholder">Esperando acción en Col 1 o 2...</div>'; }
+
+        function logSystemEvent(cat, ev, sub, customPrevState = null) {
+            const sL = document.getElementById('scoreL').value; 
+            const sV = document.getElementById('scoreV').value;
+            const defaultPrev = {
+                scoreL: sL, scoreV: sV,
+                team: st.team, zone: st.zone, period: st.period,
+                stats: JSON.parse(JSON.stringify(st.stats)),
+                gameTime: st.time
+            };
+            const prevState = customPrevState ? { ...defaultPrev, ...customPrevState } : defaultPrev;
+
+            st.log.push({ 
+                session: st.session, ts: getFullTimestamp(), 
+                time: `${st.period} - ${document.getElementById('timerDisplay').innerText}`, 
+                mod: st.mod, sL, sV, teamKey: null, pos: st.team ? st.teams[st.team].s : 'Ninguna', 
+                action: 'Sistema', cat, ev, customEv: '', sub, customSub: '', zone: st.zone, notes: '',
+                touchJugadores: '', touchFormacion: '', touchLanzamiento: '',
+                status: 'active',
+                prevState
+            });
+            st.redoLog = [];
+            updateLogUI(); saveState();
+        }
+
+        function commitEvent(subRaw, subKey) {
+            if(!st.team) { showAppAlert("Selecciona el equipo de posesión en la parte superior."); return; }
+            
+            const prevScoreL = document.getElementById('scoreL').value;
+            const prevScoreV = document.getElementById('scoreV').value;
+            const prevTeam = st.team;
+            const prevZone = st.zone;
+            const prevPeriod = st.period;
+            const prevStats = JSON.parse(JSON.stringify(st.stats));
+            const eventGameTime = st.time;
+
+            const customEv = dTranslate(st.pending.ev); const customSub = subKey ? dTranslate(subKey) : '';
+            
+            const initiatingTeam = st.team;
+            let newPossession = initiatingTeam;
+            let autoNotes = '';
+
+            let tJugadores = "";
+            let tFormacion = "";
+            let tLanzamiento = "";
+            
+            let evLowerPending = st.pending.ev.toLowerCase();
+            if (evLowerPending === 'touch a favor' || evLowerPending === 'touch propia') {
+                tJugadores = document.getElementById('touch-players-input').value;
+                if (tJugadores === '1' || tJugadores === '0') tJugadores = '';
+                tFormacion = document.getElementById('touch-formation-group-val').value;
+                tLanzamiento = document.getElementById('touch-position-group-val').value;
+                closeTouchPopup();
+            }
+
+            let forcedTeam = null;
+            const excepciones = ["placaje a favor", "placaje en contra"];
+            
+            if (!excepciones.includes(evLowerPending)) {
+                if (evLowerPending.includes('a favor') || evLowerPending.includes('propia')) {
+                    forcedTeam = st.myTeam;
+                } else if (evLowerPending.includes('en contra') || evLowerPending.includes('rival')) {
+                    forcedTeam = st.myTeam === 'Local' ? 'Visitante' : 'Local';
+                }
+            }
+
+            if (forcedTeam && initiatingTeam !== forcedTeam) {
+                selectTeam(forcedTeam, true);
+                autoNotes += `[Auto: Pos -> ${st.teams[forcedTeam].s}] `;
+            }
+
+            const ruleKey = subRaw ? `${st.pending.ev}|${subRaw}` : `${st.pending.ev}|`;
+            const rule = RULES[ruleKey];
+            
+            if (rule) {
+                if (rule.pts) {
+                    if (initiatingTeam === 'Local') document.getElementById('scoreL').value = parseInt(document.getElementById('scoreL').value) + rule.pts;
+                    else document.getElementById('scoreV').value = parseInt(document.getElementById('scoreV').value) + rule.pts;
+                    autoNotes += `[Auto: +${rule.pts} Pts] `;
+                }
+                if (rule.poss) {
+                    newPossession = initiatingTeam === 'Local' ? 'Visitante' : 'Local';
+                    autoNotes += `[Auto: Cambio Posesión] `;
+                }
+            }
+
+            st.log.push({ 
+                session: st.session, ts: getFullTimestamp(), time: `${st.period} - ${document.getElementById('timerDisplay').innerText}`, 
+                mod: st.mod, sL: document.getElementById('scoreL').value, sV: document.getElementById('scoreV').value, 
+                teamKey: initiatingTeam, pos: st.teams[initiatingTeam].s, action: st.teams[initiatingTeam].s, 
+                cat: st.pending.cat, ev: st.pending.ev, customEv, sub: subRaw, customSub, zone: st.zone, notes: autoNotes.trim(),
+                touchJugadores: tJugadores, touchFormacion: tFormacion, touchLanzamiento: tLanzamiento,
+                status: 'active',
+                prevState: {
+                    scoreL: prevScoreL, scoreV: prevScoreV,
+                    team: prevTeam, zone: prevZone, period: prevPeriod,
+                    stats: prevStats, gameTime: eventGameTime
+                }
+            });
+            
+            st.redoLog = [];
+
+            if (newPossession !== initiatingTeam) {
+                selectTeam(newPossession, true);
+            }
+
+            document.getElementById('statusBar').innerText = `✅ Registrado: ${customEv} ${customSub ? '('+customSub+')' : ''}`;
+            
+            clearSub(); updateLogUI(); saveState();
+        }
+
+        let lastUndoTimestamp = 0;
+        function undoLastAction() {
+            const now = Date.now();
+            if (now - lastUndoTimestamp < 350) return;
+            lastUndoTimestamp = now;
+
+            if (st.pending) {
+                clearSub();
+            }
+
+            let targetIdx = -1;
+            for (let i = st.log.length - 1; i >= 0; i--) {
+                if (st.log[i].status !== 'revoked by user') {
+                    targetIdx = i;
+                    break;
+                }
+            }
+
+            if (targetIdx === -1) {
+                showAppAlert("No hay acciones activas registradas para deshacer.", "Deshacer");
+                return;
+            }
+
+            const lastAction = st.log[targetIdx];
+            lastAction.status = 'revoked by user';
+            if (!st.redoLog) st.redoLog = [];
+            st.redoLog.push(targetIdx);
+
+            if (lastAction.prevState && lastAction.prevState.scoreL !== undefined) {
+                document.getElementById('scoreL').value = lastAction.prevState.scoreL;
+                document.getElementById('scoreV').value = lastAction.prevState.scoreV;
+            } else if (lastAction.ev) {
+                const ruleKey = lastAction.sub ? `${lastAction.ev}|${lastAction.sub}` : `${lastAction.ev}|`;
+                const rule = RULES[ruleKey];
+                if (rule && rule.pts && lastAction.teamKey) {
+                    const inputId = lastAction.teamKey === 'Local' ? 'scoreL' : 'scoreV';
+                    const curVal = parseInt(document.getElementById(inputId).value) || 0;
+                    document.getElementById(inputId).value = Math.max(0, curVal - rule.pts);
+                }
+            }
+
+            if (lastAction.prevState && lastAction.prevState.stats) {
+                const restoredStats = JSON.parse(JSON.stringify(lastAction.prevState.stats));
+                const deltaSeconds = Math.max(0, st.time - (lastAction.prevState.gameTime || st.time));
+                
+                const restoredTeam = lastAction.prevState.team;
+                if (restoredTeam && deltaSeconds > 0) {
+                    restoredStats.pos[restoredTeam] = (restoredStats.pos[restoredTeam] || 0) + deltaSeconds;
+                }
+                const restoredZone = lastAction.prevState.zone;
+                if (restoredZone && deltaSeconds > 0) {
+                    const zMatch = restoredZone.match(/\d/);
+                    if (zMatch) {
+                        const zNum = parseInt(zMatch[0]);
+                        restoredStats.ter[zNum] = (restoredStats.ter[zNum] || 0) + deltaSeconds;
+                    }
+                }
+                st.stats = restoredStats;
+            }
+
+            if (lastAction.prevState && lastAction.prevState.team !== undefined) {
+                selectTeam(lastAction.prevState.team, true);
+            } else if (lastAction.teamKey) {
+                selectTeam(lastAction.teamKey, true);
+            } else {
+                st.team = null;
+                const btnL = document.getElementById('btnTeamL');
+                const btnV = document.getElementById('btnTeamV');
+                if (btnL) btnL.classList.remove('selected');
+                if (btnV) btnV.classList.remove('selected');
+            }
+
+            if (lastAction.prevState && lastAction.prevState.zone && lastAction.prevState.zone !== st.zone) {
+                st.zone = lastAction.prevState.zone;
+                initPitch();
+            }
+
+            if (lastAction.prevState && lastAction.prevState.period && lastAction.prevState.period !== st.period) {
+                st.period = lastAction.prevState.period;
+                document.getElementById('periodToggle').innerText = st.period;
+            }
+
+            let desc = '';
+            if (lastAction.action === 'Sistema') {
+                desc = `[Sistema] ${lastAction.ev || lastAction.cat}: ${lastAction.sub || ''}`;
+            } else {
+                const evName = lastAction.customEv || lastAction.ev || 'Acción';
+                const subName = lastAction.customSub || lastAction.sub || '';
+                desc = `${lastAction.action || ''} - ${evName}${subName ? ' (' + subName + ')' : ''}`;
+            }
+
+            document.getElementById('statusBar').innerText = `↩️ Anulado: ${desc.trim()}`;
+
+            updateStatsUI();
+            updateLogUI();
+            updateLockState();
+            saveState();
+        }
+
+        let lastRedoTimestamp = 0;
+        function redoLastAction() {
+            const now = Date.now();
+            if (now - lastRedoTimestamp < 350) return;
+            lastRedoTimestamp = now;
+
+            if (!st.redoLog || st.redoLog.length === 0) return;
+            const targetIdx = st.redoLog.pop();
+            const action = st.log[targetIdx];
+            if (!action || action.status !== 'revoked by user') return;
+
+            action.status = 'active';
+
+            document.getElementById('scoreL').value = action.sL;
+            document.getElementById('scoreV').value = action.sV;
+
+            let teamToRestore = null;
+            if (action.teamKey) {
+                teamToRestore = action.teamKey;
+            } else if (action.pos && action.pos !== 'Ninguna') {
+                teamToRestore = Object.keys(st.teams).find(k => st.teams[k].s === action.pos);
+            }
+            
+            if (teamToRestore) {
+                selectTeam(teamToRestore, true);
+            } else {
+                st.team = null;
+                const btnL = document.getElementById('btnTeamL');
+                const btnV = document.getElementById('btnTeamV');
+                if (btnL) btnL.classList.remove('selected');
+                if (btnV) btnV.classList.remove('selected');
+            }
+
+            if (action.zone && action.zone !== st.zone) {
+                st.zone = action.zone;
+                initPitch();
+            }
+
+            if (action.time) {
+                const actionPeriod = action.time.split(' - ')[0];
+                if (actionPeriod && actionPeriod !== st.period) {
+                    st.period = actionPeriod;
+                    document.getElementById('periodToggle').innerText = st.period;
+                }
+            }
+
+            let desc = '';
+            if (action.action === 'Sistema') {
+                desc = `[Sistema] ${action.ev || action.cat}: ${action.sub || ''}`;
+            } else {
+                const evName = action.customEv || action.ev || 'Acción';
+                const subName = action.customSub || action.sub || '';
+                desc = `${action.action || ''} - ${evName}${subName ? ' (' + subName + ')' : ''}`;
+            }
+
+            document.getElementById('statusBar').innerText = `↪️ Restaurado: ${desc.trim()}`;
+
+            updateStatsUI();
+            updateLogUI();
+            updateLockState();
+            saveState();
+        }
+
+        function updateLogUI() {
+            const list = document.getElementById('logList'); list.innerHTML = '';
+            let kpis = { Local: { ens:0, mel:0, tou:0, gol:0 }, Visitante: { ens:0, mel:0, tou:0, gol:0 } };
+            
+            st.log.slice().reverse().forEach(e => {
+                const isRevoked = e.status === 'revoked by user';
+                const li = document.createElement('li');
+                
+                if (isRevoked) {
+                    li.style.textDecoration = 'line-through';
+                    li.style.opacity = '0.55';
+                    li.style.backgroundColor = '#f8fafc';
+                }
+
+                const revokedBadge = isRevoked ? '<span style="color:#ef4444; font-weight:bold; font-size:0.55rem; border:1px solid #fca5a5; background:#fef2f2; padding:0 3px; border-radius:2px; margin-right:4px;">REVOCADO</span>' : '';
+
+                if (e.action === 'Sistema') {
+                    li.innerHTML = `${revokedBadge}<strong style="color:#94a3b8;">[${e.time.split(' - ')[1]}] ⚙️ ${e.ev}:</strong> ${e.sub}`;
+                } else {
+                    li.innerHTML = `${revokedBadge}<strong style="color:#64748b;">[${e.time.split(' - ')[1]}]</strong> <strong style="color:${e.action === st.teams.Local.s ? 'var(--border-local)' : 'var(--border-visitor)'}">${e.action}</strong>: ${e.customEv} ${e.customSub ? '<span style="color:#475569">('+e.customSub+')</span>' : ''} <span style="font-size:0.55rem; background:#e2e8f0; padding:1px 4px; border-radius:3px;">@${e.zone}</span> ${e.notes ? '📝' : ''}`;
+                    if (!isRevoked && e.teamKey) { 
+                        if(e.ev === 'Ensayo') kpis[e.teamKey].ens++; 
+                        if(e.ev.includes('Melée')) kpis[e.teamKey].mel++; 
+                        if(e.ev.includes('Touch')) kpis[e.teamKey].tou++; 
+                        if(e.ev.includes('Golpe de castigo') || e.ev.includes('Golpe castigo')) kpis[e.teamKey].gol++; 
+                    }
+                }
+                if (e.notes) li.title = e.notes + (isRevoked ? " [REVOCADO POR USUARIO]" : ""); 
+                list.appendChild(li);
+            });
+
+            const activeEvents = st.log.filter(e => e.status !== 'revoked by user');
+            document.getElementById('statsBasic').innerText = `(${activeEvents.length})`;
+            document.getElementById('kpi-ens-l').innerText = kpis.Local.ens; document.getElementById('kpi-ens-v').innerText = kpis.Visitante.ens;
+            document.getElementById('kpi-mel-l').innerText = kpis.Local.mel; document.getElementById('kpi-mel-v').innerText = kpis.Visitante.mel;
+            document.getElementById('kpi-tou-l').innerText = kpis.Local.tou; document.getElementById('kpi-tou-v').innerText = kpis.Visitante.tou;
+            document.getElementById('kpi-gol-l').innerText = kpis.Local.gol; document.getElementById('kpi-gol-v').innerText = kpis.Visitante.gol;
+            
+            const hasUndo = activeEvents.length > 0;
+            const btnUndo1 = document.getElementById('btnUndo');
+            const btnUndo2 = document.getElementById('btnUndoLog');
+            if (btnUndo1) {
+                btnUndo1.disabled = !hasUndo;
+                btnUndo1.style.opacity = hasUndo ? '1' : '0.5';
+                btnUndo1.style.cursor = hasUndo ? 'pointer' : 'not-allowed';
+            }
+            if (btnUndo2) {
+                btnUndo2.disabled = !hasUndo;
+                btnUndo2.style.opacity = hasUndo ? '1' : '0.5';
+                btnUndo2.style.cursor = hasUndo ? 'pointer' : 'not-allowed';
+            }
+
+            const hasRedo = st.redoLog && st.redoLog.length > 0;
+            const btnRedo1 = document.getElementById('btnRedo');
+            const btnRedo2 = document.getElementById('btnRedoLog');
+            if (btnRedo1) {
+                btnRedo1.disabled = !hasRedo;
+                btnRedo1.style.opacity = hasRedo ? '1' : '0.5';
+                btnRedo1.style.cursor = hasRedo ? 'pointer' : 'not-allowed';
+            }
+            if (btnRedo2) {
+                btnRedo2.disabled = !hasRedo;
+                btnRedo2.style.opacity = hasRedo ? '1' : '0.5';
+                btnRedo2.style.cursor = hasRedo ? 'pointer' : 'not-allowed';
+            }
+        }
+
+        function resetMatch() {
+            showAppConfirm("¿Archivar sesión actual y resetear cronómetro a cero?", () => {
+                if (st.running) toggleTimer();
+                st.masterLog = st.masterLog.concat(st.log); 
+                st.log = []; 
+                st.redoLog = []; 
+                st.time = 0; 
+                st.session++;
+                st.stats = { pos: { Local: 0, Visitante: 0 }, ter: { 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0 } };
+                document.getElementById('scoreL').value = 0; 
+                document.getElementById('scoreV').value = 0; 
+                document.getElementById('sessionDisplay').innerText = `#${st.session}`;
+                
+                st.zone = 'Z4-Central';
+                st.team = null;
+                const btnL = document.getElementById('btnTeamL');
+                const btnV = document.getElementById('btnTeamV');
+                if (btnL) btnL.classList.remove('selected');
+                if (btnV) btnV.classList.remove('selected');
+                initPitch();
+
+                updateTime(); 
+                updateStatsUI(); 
+                updateLogUI(); 
+                logSystemEvent('Sistema', 'Nueva Sesión', `ID: ${st.session}`); 
+                saveState();
+            }, null, "Resetear Partido");
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+                const tag = document.activeElement ? document.activeElement.tagName : '';
+                if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+                e.preventDefault();
+                if (e.shiftKey) {
+                    redoLastAction();
+                } else {
+                    undoLastAction();
+                }
+            } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+                const tag = document.activeElement ? document.activeElement.tagName : '';
+                if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+                e.preventDefault();
+                redoLastAction();
+            }
+        });
+
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js')); }
+        window.addEventListener('DOMContentLoaded', initSetup);
+    </script>
+</body>
+</html>
