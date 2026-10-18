@@ -3,6 +3,7 @@
   "short_name": "RuggerMatch",
   "start_url": "./index.html",
   "display": "standalone",
+  "orientation": "landscape",
   "background_color": "#1e293b",
   "theme_color": "#1e293b",
   "icons": [
