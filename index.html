@@ -649,6 +649,9 @@
                 const result = await response.json();
                 if (result.status === 'success') {
                     localStorage.setItem('ruggerLastLogDate', today);
+                    if (triggerReason === 'FORZADO_MANUAL') showAppAlert("Log registrado correctamente en la base de datos.", "Éxito");
+                } else {
+                    showAppAlert("Error devuelto por Apps Script:\n" + result.message, "Fallo en Backend");
                 }
             } catch (e) {
                 await saveToQueue(requestData);
