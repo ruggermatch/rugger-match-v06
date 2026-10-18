@@ -1,5 +1,5 @@
-<html lang="es">
 <!DOCTYPE html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -239,11 +239,11 @@
 </head>
 <body>
     <div id="update-banner">
-        <span>馃攧 Nueva versi贸n disponible</span>
+        <span>🔄 Nueva versión disponible</span>
         <button id="btn-update-app">Actualizar ahora</button>
     </div>
 
-    <div id="portraitWarning"><h2>鈿狅笍 Gira el dispositivo</h2><p>La aplicaci贸n exige orientaci贸n apaisada.</p></div>
+    <div id="portraitWarning"><h2>⚠️ Gira el dispositivo</h2><p>La aplicación exige orientación apaisada.</p></div>
 
     <div id="screen-login" class="spa-screen active" style="align-items: center; justify-content: center;">
         <div class="card" style="width: 320px; text-align: center;">
@@ -267,15 +267,15 @@
             </div>
 
             <p style="font-size: 0.75rem; color: #64748b; margin-top: 20px; line-height: 1.4;">
-                Al acceder a esta aplicaci贸n aceptas nuestra
-                <a href="https://alonseit.github.io/rugger-landing/privacidad.html" target="_blank" style="color: var(--secondary); text-decoration: underline;">pol铆tica de privacidad</a>.
+                Al acceder a esta aplicación aceptas nuestra
+                <a href="https://alonseit.github.io/rugger-landing/privacidad.html" target="_blank" style="color: var(--secondary); text-decoration: underline;">política de privacidad</a>.
             </p>
         </div>
     </div>
 
     <div id="modal-alert" class="modal-overlay" style="z-index: 2000;">
         <div class="modal-content" style="max-width: 400px; text-align: center;">
-            <h3 id="alert-title" style="margin-top:0; color:var(--warning);">鈿狅笍 Aviso</h3>
+            <h3 id="alert-title" style="margin-top:0; color:var(--warning);">⚠️ Aviso</h3>
             <p id="alert-message" style="font-size:0.95rem; color:#475569; margin-bottom: 20px;"></p>
             <button class="btn-primary" onclick="document.getElementById('modal-alert').classList.remove('active')">Entendido</button>
         </div>
@@ -283,7 +283,7 @@
 
     <div id="modal-confirm" class="modal-overlay" style="z-index: 2000;">
         <div class="modal-content" style="max-width: 450px; text-align: center;">
-            <h3 id="confirm-title" style="margin-top:0; color:var(--primary);">Confirmaci贸n</h3>
+            <h3 id="confirm-title" style="margin-top:0; color:var(--primary);">Confirmación</h3>
             <p id="confirm-message" style="font-size:0.95rem; color:#475569; margin-bottom: 20px; white-space: pre-line; line-height: 1.4;"></p>
             <div style="display:flex; gap: 10px; justify-content: center;">
                 <button id="btn-confirm-yes" class="btn-primary" style="background:var(--success);">Aceptar</button>
@@ -294,11 +294,11 @@
 
     <div id="modal-recovery" class="modal-overlay">
         <div class="modal-content" style="max-width: 450px; text-align: center;">
-            <h3 style="margin-top:0; color:var(--primary);">馃攧 Sesi贸n Detectada</h3>
+            <h3 style="margin-top:0; color:var(--primary);">🔄 Sesión Detectada</h3>
             <p style="font-size:0.9rem; color:#475569; margin-bottom: 20px;">Se ha detectado un partido guardado en la memoria local de este dispositivo.</p>
             <div style="display:flex; flex-direction: column; gap: 10px;">
-                <button class="btn-primary" style="background:var(--success);" onclick="recoverSession()">Continuar Sesi贸n Anterior</button>
-                <button class="btn-danger" style="padding: 12px;" onclick="discardSession()">鈿狅笍 Borrar Todo e Iniciar Nuevo Partido</button>
+                <button class="btn-primary" style="background:var(--success);" onclick="recoverSession()">Continuar Sesión Anterior</button>
+                <button class="btn-danger" style="padding: 12px;" onclick="discardSession()">⚠️ Borrar Todo e Iniciar Nuevo Partido</button>
             </div>
         </div>
     </div>
@@ -306,10 +306,10 @@
     <div id="screen-setup" class="spa-screen">
         <div class="setup-container">
             <div class="setup-header">
-                <h2 style="margin:0;">Configuraci贸n del Partido <span id="version-menu" style="font-size: 0.8rem; color: #64748b; font-weight: normal;"></span></h2>
+                <h2 style="margin:0;">Configuración del Partido <span id="version-menu" style="font-size: 0.8rem; color: #64748b; font-weight: normal;"></span></h2>
                 <div class="action-buttons">
-                    <button class="btn-danger" onclick="hardResetData()">鈿狅笍 Borrar Memoria</button>
-                    <button class="btn-menu" style="padding: 8px 16px;" onclick="checkAdminUnlock(openSettings)">鈿欙笍 Diccionario Avanzado</button>
+                    <button class="btn-danger" onclick="hardResetData()">⚠️ Borrar Memoria</button>
+                    <button class="btn-menu" style="padding: 8px 16px;" onclick="checkAdminUnlock(openSettings)">⚙️ Diccionario Avanzado</button>
                 </div>
             </div>
             <div class="setup-grid">
@@ -343,9 +343,9 @@
                     </div>
                 </div>
                 <div class="setup-box setup-right">
-                    <h4>2. M贸dulo de An谩lisis</h4>
+                    <h4>2. Módulo de Análisis</h4>
                     <div class="modules-grid" id="modulesGrid"></div>
-                    <button class="btn-primary btn-start-match" onclick="startMatch()">Ir al Partido 馃弶</button>
+                    <button class="btn-primary btn-start-match" onclick="startMatch()">Ir al Partido 🏉</button>
                 </div>
             </div>
         </div>
@@ -353,9 +353,9 @@
 
     <div id="modal-settings" class="modal-overlay">
         <div class="modal-content">
-            <h3 style="margin-top:0;">Organizaci贸n de M贸dulos y Diccionario <span id="version-settings" style="font-size: 0.8rem; color: #64748b; font-weight: normal; cursor: pointer;" title="Triple clic para forzar log de acceso"></span></h3>
-            <p id="dictLockWarning" style="font-size:0.85rem; color:var(--danger); font-weight:bold; display:none; background:#fef2f2; padding:8px; border-radius:4px; border:1px solid #fecaca; margin-bottom:10px;">馃敀 Layout bloqueado: Partido en curso.</p>
-            <p style="font-size:0.8rem; color:#64748b; margin-bottom: 10px;">Selecciona en qu茅 m贸dulo debe aparecer cada fase y ren贸mbralas si es necesario.</p>
+            <h3 style="margin-top:0;">Organización de Módulos y Diccionario <span id="version-settings" style="font-size: 0.8rem; color: #64748b; font-weight: normal; cursor: pointer;" title="Triple clic para forzar log de acceso"></span></h3>
+            <p id="dictLockWarning" style="font-size:0.85rem; color:var(--danger); font-weight:bold; display:none; background:#fef2f2; padding:8px; border-radius:4px; border:1px solid #fecaca; margin-bottom:10px;">🔒 Layout bloqueado: Partido en curso.</p>
+            <p style="font-size:0.8rem; color:#64748b; margin-bottom: 10px;">Selecciona en qué módulo debe aparecer cada fase y renómbralas si es necesario.</p>
             
             <div id="dictForm"></div>
             
@@ -370,7 +370,7 @@
         <div class="top-bar">
             <div class="timer-section">
                 <span class="timer-display" id="timerDisplay">00:00</span>
-                <div class="period-toggle" onclick="togglePeriod()" id="periodToggle">1陋 Parte</div>
+                <div class="period-toggle" onclick="togglePeriod()" id="periodToggle">1ª Parte</div>
                 <div class="action-buttons">
                     <button class="btn-play" onclick="toggleTimer()">Inicio / Pausa</button>
                     <button class="btn-reset" onclick="resetMatch()">Reset</button>
@@ -382,10 +382,10 @@
                 <div style="display:flex; align-items:center; gap:6px;"><input type="number" id="scoreV" class="score-input" value="0" min="0" onchange="saveState()"> <span id="scoreLblV">VIS</span></div>
             </div>
             <div class="action-buttons">
-                <button class="btn-edit-layout" id="btnEditLayout" onclick="checkAdminUnlock(toggleEditMode)">鉁忥笍 Layout</button>
-                <button class="btn-icon" onclick="toggleZoneLabels()">馃憗锔?/button>
-                <button class="btn-menu" onclick="navigateToScreen('screen-setup')">Men煤</button>
-                <button class="btn-export" onclick="uploadMatchToCloud()">Subir a Nube 鈽侊笍</button>
+                <button class="btn-edit-layout" id="btnEditLayout" onclick="checkAdminUnlock(toggleEditMode)">✏️ Layout</button>
+                <button class="btn-icon" onclick="toggleZoneLabels()">👁️</button>
+                <button class="btn-menu" onclick="navigateToScreen('screen-setup')">Menú</button>
+                <button class="btn-export" onclick="uploadMatchToCloud()">Subir a Nube ☁️</button>
             </div>
         </div>
 
@@ -423,31 +423,31 @@
                         </div>
                     </div>
                 </div>
-                <div class="attack-direction" onclick="togglePitchFlip()" id="btnFlipPitch">SENTIDO DE ATAQUE 鉃★笍馃攧</div>
+                <div class="attack-direction" onclick="togglePitchFlip()" id="btnFlipPitch">SENTIDO DE ATAQUE ➡️🔄</div>
             </div>
 
             <div class="log-panel">
                 <div class="log-title">
                     <div style="display:flex; align-items:center; gap:6px;">
-                        <span>SESI脫N <span id="sessionDisplay" style="color:var(--secondary);">#1</span></span>
+                        <span>SESIÓN <span id="sessionDisplay" style="color:var(--secondary);">#1</span></span>
                         <span id="statsBasic" style="color:var(--secondary);">(0)</span>
                     </div>
                     <div style="display:flex; gap:4px;">
-                        <button class="btn-undo-mini" id="btnUndoLog" onclick="undoLastAction()" title="Deshacer (Ctrl+Z)">鈫╋笍</button>
-                        <button class="btn-redo-mini" id="btnRedoLog" onclick="redoLastAction()" title="Rehacer (Ctrl+Y)">鈫笍</button>
+                        <button class="btn-undo-mini" id="btnUndoLog" onclick="undoLastAction()" title="Deshacer (Ctrl+Z)">↩️</button>
+                        <button class="btn-redo-mini" id="btnRedoLog" onclick="redoLastAction()" title="Rehacer (Ctrl+Y)">↪️</button>
                     </div>
                 </div>
                 <table class="stats-table">
                     <thead><tr><th style="text-align:left;">KPI</th><th id="stLblL">LOC</th><th id="stLblV">VIS</th></tr></thead>
                     <tbody>
                         <tr><td style="text-align:left; font-weight:bold;">Ensayos</td><td id="kpi-ens-l">0</td><td id="kpi-ens-v">0</td></tr>
-                        <tr><td style="text-align:left; font-weight:bold;">Mel茅es</td><td id="kpi-mel-l">0</td><td id="kpi-mel-v">0</td></tr>
+                        <tr><td style="text-align:left; font-weight:bold;">Melées</td><td id="kpi-mel-l">0</td><td id="kpi-mel-v">0</td></tr>
                         <tr><td style="text-align:left; font-weight:bold;">Touchs</td><td id="kpi-tou-l">0</td><td id="kpi-tou-v">0</td></tr>
                         <tr><td style="text-align:left; font-weight:bold;">Golpes</td><td id="kpi-gol-l">0</td><td id="kpi-gol-v">0</td></tr>
                     </tbody>
                 </table>
                 <div class="live-stats">
-                    <div class="stat-row"><span id="lblPosL">LOC 0%</span><span>POSESI脫N</span><span id="lblPosV">0% VIS</span></div>
+                    <div class="stat-row"><span id="lblPosL">LOC 0%</span><span>POSESIÓN</span><span id="lblPosV">0% VIS</span></div>
                     <div class="stat-bar-bg">
                         <div class="stat-bar-fill" id="barPosL" style="background:var(--border-local); width:0%;"></div>
                         <div class="stat-bar-fill" id="barPosV" style="background:var(--border-visitor); width:0%;"></div>
@@ -458,27 +458,27 @@
                         <div class="stat-bar-fill" id="barTerV" style="background:#38bdf8; width:0%;"></div>
                     </div>
                 </div>
-                <ul class="log-list" id="logList"><li style="color:#94a3b8; font-style:italic; text-align: center; margin-top: 10px;">Esperando acci贸n...</li></ul>
+                <ul class="log-list" id="logList"><li style="color:#94a3b8; font-style:italic; text-align: center; margin-top: 10px;">Esperando acción...</li></ul>
             </div>
         </div>
 
         <div class="bottom-panel">
             <div class="teams-grid">
-                <button class="team-btn team-btn-local" id="btnTeamL" onclick="selectTeam('Local')">Posesi贸n: Local</button>
-                <button class="team-btn team-btn-visitor" id="btnTeamV" onclick="selectTeam('Visitante')">Posesi贸n: Visitante</button>
+                <button class="team-btn team-btn-local" id="btnTeamL" onclick="selectTeam('Local')">Posesión: Local</button>
+                <button class="team-btn team-btn-visitor" id="btnTeamV" onclick="selectTeam('Visitante')">Posesión: Visitante</button>
             </div>
             <div class="columns-3-container">
                 <div class="column" id="col1">
                     <div class="col-header-wrap">
-                        <button class="col-move-btn" onclick="moveColumn('GENERAL', 'left')">鈼€</button>
+                        <button class="col-move-btn" onclick="moveColumn('GENERAL', 'left')">◀</button>
                         <div class="col-header">1. General</div>
-                        <button class="col-move-btn" onclick="moveColumn('GENERAL', 'right')">鈻?/button>
+                        <button class="col-move-btn" onclick="moveColumn('GENERAL', 'right')">▶</button>
                     </div>
                     <div id="col1-content" class="col-content"></div>
                     
                     <div id="touch-popup">
                         <h4 style="margin:0; font-size:0.8rem; color:var(--secondary); border-bottom:1px solid #cbd5e1; padding-bottom:4px; display:flex; justify-content:space-between;">
-                            Configuraci贸n Touch
+                            Configuración Touch
                             <button onclick="closeTouchPopup()" style="background:none; border:none; color:var(--danger); font-weight:bold; cursor:pointer; font-size:0.9rem;">X</button>
                         </h4>
                         
@@ -504,13 +504,13 @@
                             </div>
                             
                             <div>
-                                <label style="font-size:0.7rem; font-weight:bold; color:#475569; display:block; margin-bottom:4px;">Tipo de Formaci贸n:</label>
+                                <label style="font-size:0.7rem; font-weight:bold; color:#475569; display:block; margin-bottom:4px;">Tipo de Formación:</label>
                                 <div class="btn-group" id="touch-formation-group"></div>
                                 <input type="hidden" id="touch-formation-group-val">
                             </div>
 
                             <div>
-                                <label style="font-size:0.7rem; font-weight:bold; color:#475569; display:block; margin-bottom:4px;">Posici贸n de Lanzamiento:</label>
+                                <label style="font-size:0.7rem; font-weight:bold; color:#475569; display:block; margin-bottom:4px;">Posición de Lanzamiento:</label>
                                 <div class="btn-group" id="touch-position-group"></div>
                                 <input type="hidden" id="touch-position-group-val">
                             </div>
@@ -519,27 +519,27 @@
                 </div>
                 <div class="column" id="col2">
                     <div class="col-header-wrap" style="border-bottom-color:var(--secondary)">
-                        <button class="col-move-btn" onclick="moveColumn('MODULO', 'left')">鈼€</button>
-                        <div class="col-header" id="col2Header" style="color:var(--secondary)">2. M贸dulo</div>
-                        <button class="col-move-btn" onclick="moveColumn('MODULO', 'right')">鈻?/button>
+                        <button class="col-move-btn" onclick="moveColumn('MODULO', 'left')">◀</button>
+                        <div class="col-header" id="col2Header" style="color:var(--secondary)">2. Módulo</div>
+                        <button class="col-move-btn" onclick="moveColumn('MODULO', 'right')">▶</button>
                     </div>
                     <div id="col2-content" class="col-content"></div>
                 </div>
                 <div class="column" id="col3">
                     <div class="col-header-wrap" style="border-bottom-color:var(--warning)">
-                        <button class="col-move-btn" onclick="moveColumn('SUBFASES', 'left')">鈼€</button>
+                        <button class="col-move-btn" onclick="moveColumn('SUBFASES', 'left')">◀</button>
                         <div class="col-header" style="color:var(--warning)">3. Subfases</div>
-                        <button class="col-move-btn" onclick="moveColumn('SUBFASES', 'right')">鈻?/button>
+                        <button class="col-move-btn" onclick="moveColumn('SUBFASES', 'right')">▶</button>
                     </div>
                     <div id="col3-content" class="col-content"><div class="subfase-placeholder">Esperando fase...</div></div>
                 </div>
             </div>
             <div class="controls-row">
-                <button class="btn-undo" id="btnUndo" onclick="undoLastAction()" title="Deshacer 煤ltima acci贸n (Ctrl+Z)">鈫╋笍 Deshacer</button>
-                <button class="btn-redo" id="btnRedo" onclick="redoLastAction()" title="Rehacer acci贸n (Ctrl+Y)">鈫笍 Rehacer</button>
-                <input type="text" id="notesInput" class="notes-input" placeholder="A帽adir nota al 煤ltimo evento..." onkeypress="if(event.key === 'Enter') attachTextNoteToLastEvent()">
-                <button class="btn-text-note" onclick="attachTextNoteToLastEvent()" title="Adjuntar texto escrito al 煤ltimo evento">馃摑</button>
-                <button class="btn-mic" id="btnMic" onclick="toggleVoiceDictation()" title="A帽adir nota de voz al 煤ltimo evento">馃帳</button>
+                <button class="btn-undo" id="btnUndo" onclick="undoLastAction()" title="Deshacer última acción (Ctrl+Z)">↩️ Deshacer</button>
+                <button class="btn-redo" id="btnRedo" onclick="redoLastAction()" title="Rehacer acción (Ctrl+Y)">↪️ Rehacer</button>
+                <input type="text" id="notesInput" class="notes-input" placeholder="Añadir nota al último evento..." onkeypress="if(event.key === 'Enter') attachTextNoteToLastEvent()">
+                <button class="btn-text-note" onclick="attachTextNoteToLastEvent()" title="Adjuntar texto escrito al último evento">📝</button>
+                <button class="btn-mic" id="btnMic" onclick="toggleVoiceDictation()" title="Añadir nota de voz al último evento">🎤</button>
                 <div class="status-text" id="statusBar">Estado: Listo</div>
             </div>
         </div>
@@ -551,7 +551,7 @@
         window.addEventListener('error', function(e) {
             const sb = document.getElementById('statusBar');
             if (sb) {
-                sb.innerText = `馃洃 ERR: ${e.message} (L: ${e.lineno})`;
+                sb.innerText = `🛑 ERR: ${e.message} (L: ${e.lineno})`;
                 sb.style.color = 'white';
                 sb.style.backgroundColor = 'var(--danger)';
             }
@@ -697,7 +697,7 @@
             if(allData.length === 0) { showAppAlert("No hay eventos registrados."); return; }
             if(st.running) toggleTimer();
             
-            const head = "Match ID,Sesi贸n,Timestamp,Tiempo Partido,Estado Registro,Modulo,Equipo Local,Equipo Visitante,Marcador Local,Marcador Visitante,Posesi贸n,Equipo Acci贸n,Es Mi Equipo,Categor铆a,Fase,Etiqueta Personalizada Fase,Subfase,Etiqueta Personalizada Subfase,Zona,Canal,Notas,Touch Jugadores,Touch Formacion,Touch Posicion Lanzamiento\n";
+            const head = "Match ID,Sesión,Timestamp,Tiempo Partido,Estado Registro,Modulo,Equipo Local,Equipo Visitante,Marcador Local,Marcador Visitante,Posesión,Equipo Acción,Es Mi Equipo,Categoría,Fase,Etiqueta Personalizada Fase,Subfase,Etiqueta Personalizada Subfase,Zona,Canal,Notas,Touch Jugadores,Touch Formacion,Touch Posicion Lanzamiento\n";
             const rows = allData.map(e => {
                 const isMyTeam = e.teamKey ? (e.teamKey === st.myTeam ? "TRUE" : "FALSE") : "";
                 const statusStr = e.status || "active";
@@ -724,43 +724,43 @@
                 
                 const result = await response.json();
                 if(result.status === 'success') {
-                    showAppAlert("Archivo encriptado subido a Drive correctamente.", "Sincronizaci贸n Exitosa");
+                    showAppAlert("Archivo encriptado subido a Drive correctamente.", "Sincronización Exitosa");
                     document.getElementById('statusBar').innerText = "Estado: Guardado en nube";
                 } else {
                     throw new Error(result.message);
                 }
             } catch (error) {
                 await saveToQueue(requestData);
-                showAppAlert("Fallo de red. El partido ha sido encolado en la memoria de la tableta. Se subir谩 autom谩ticamente al recuperar la conexi贸n WiFi.", "Modo Offline Activo");
+                showAppAlert("Fallo de red. El partido ha sido encolado en la memoria de la tableta. Se subirá automáticamente al recuperar la conexión WiFi.", "Modo Offline Activo");
                 document.getElementById('statusBar').innerText = "Estado: Encolado offline";
             }
         }
 
         const MODULES = {
-            ATAQUE: { icon: '鈿旓笍', name: 'Ataque', desc: 'Continuidad, ventaja, rucks.', color: '#8b5cf6' },
-            DEFENSA: { icon: '馃洝锔?, name: 'Defensa', desc: 'Placajes, jackal, presi贸n.', color: '#0284c7' },
-            ESTATICAS: { icon: '馃搻', name: 'Est谩ticas', desc: 'Mel茅e, Touch, Salidas.', color: '#f59e0b' },
-            JUEGO_PIE: { icon: '馃憻', name: 'Juego Pie', desc: 'Patadas y transiciones.', color: '#10b981' }
+            ATAQUE: { icon: '⚔️', name: 'Ataque', desc: 'Continuidad, ventaja, rucks.', color: '#8b5cf6' },
+            DEFENSA: { icon: '🛡️', name: 'Defensa', desc: 'Placajes, jackal, presión.', color: '#0284c7' },
+            ESTATICAS: { icon: '📐', name: 'Estáticas', desc: 'Melée, Touch, Salidas.', color: '#f59e0b' },
+            JUEGO_PIE: { icon: '👟', name: 'Juego Pie', desc: 'Patadas y transiciones.', color: '#10b981' }
         };
 
         const BASE_GENERAL = [
-            "Touch a favor", "Touch en contra", "Mel茅e a favor", "Mel茅e en contra",
-            "Ensayo", "Conversi贸n", "Drop", "Golpe castigo a favor", "Golpe castigo en contra",
-            "Golpe franco a favor", "Golpe franco en contra", "Comod铆n G1", "Comod铆n G2"
+            "Touch a favor", "Touch en contra", "Melée a favor", "Melée en contra",
+            "Ensayo", "Conversión", "Drop", "Golpe castigo a favor", "Golpe castigo en contra",
+            "Golpe franco a favor", "Golpe franco en contra", "Comodín G1", "Comodín G2"
         ];
         
         const MOD_EVENTS = {
             ATAQUE: [
-                "L铆nea de ventaja ganada", "L铆nea de ventaja no ganada", "Maul", "Ruck",
+                "Línea de ventaja ganada", "Línea de ventaja no ganada", "Maul", "Ruck",
                 "Placaje >> Ruck", "Placaje en contra", "Patada", "Chute a palos",
-                "Comod铆n A1", "Comod铆n A2"
+                "Comodín A1", "Comodín A2"
             ],
             DEFENSA: [
-                "Golpe franco", "Bal贸n adelantado", "Golpe de castigo en contra", "Placaje a favor",
-                "Comod铆n D1", "Comod铆n D2"
+                "Golpe franco", "Balón adelantado", "Golpe de castigo en contra", "Placaje a favor",
+                "Comodín D1", "Comodín D2"
             ],
-            ESTATICAS: ["Mel茅e Propia", "Mel茅e Rival", "Touch Propia", "Touch Rival", "Maul desde Touch", "Strike Play", "Salida Centro", "Comod铆n E1", "Comod铆n E2"],
-            JUEGO_PIE: ["Box Kick", "Up & Under", "Grubber", "Exit", "Cross-kick", "Recepci贸n A茅rea", "Comod铆n P1", "Comod铆n P2"]
+            ESTATICAS: ["Melée Propia", "Melée Rival", "Touch Propia", "Touch Rival", "Maul desde Touch", "Strike Play", "Salida Centro", "Comodín E1", "Comodín E2"],
+            JUEGO_PIE: ["Box Kick", "Up & Under", "Grubber", "Exit", "Cross-kick", "Recepción Aérea", "Comodín P1", "Comodín P2"]
         };
 
         const ALL_MODS_MASTER = {
@@ -774,39 +774,39 @@
         const ALL_EVENTS = [...new Set([...BASE_GENERAL, ...Object.keys(MOD_EVENTS).flatMap(k => MOD_EVENTS[k])])];
 
         const SUB_EVENTS = {
-            "Touch a favor": ["Ganada con presi贸n", "Ganada con 1 pase de calidad (>>9)", "Ganada con 2 pases de calidad (>>10)", "Perdida por mal lanzamiento", "Perdida por salto a destiempo", "Perdida por mala coordinaci贸n lanzador-saltador", "Perdida por amago de lanzamiento", "R谩pida"],
+            "Touch a favor": ["Ganada con presión", "Ganada con 1 pase de calidad (>>9)", "Ganada con 2 pases de calidad (>>10)", "Perdida por mal lanzamiento", "Perdida por salto a destiempo", "Perdida por mala coordinación lanzador-saltador", "Perdida por amago de lanzamiento", "Rápida"],
             "Touch en contra": ["Recuperada", "Perdida"],
-            "Mel茅e a favor": ["Ganada con presi贸n", "Ganada con 1 pase de calidad (8>9)", "Ganada con 1 pase de calidad (9>10)", "Ganada con 2 pases de calidad (8>9>10)", "Perdida", "Golpe de castigo a favor", "Golpe de castigo en contra"],
-            "Mel茅e en contra": ["Recuperada", "Perdida", "Golpe de castigo a favor", "Golpe de castigo en contra"],
-            "Ensayo": ["Delantera", "3/4", "Rotura de l铆nea", "Maul"],
-            "Conversi贸n": ["Acierto", "Fallo"],
+            "Melée a favor": ["Ganada con presión", "Ganada con 1 pase de calidad (8>9)", "Ganada con 1 pase de calidad (9>10)", "Ganada con 2 pases de calidad (8>9>10)", "Perdida", "Golpe de castigo a favor", "Golpe de castigo en contra"],
+            "Melée en contra": ["Recuperada", "Perdida", "Golpe de castigo a favor", "Golpe de castigo en contra"],
+            "Ensayo": ["Delantera", "3/4", "Rotura de línea", "Maul"],
+            "Conversión": ["Acierto", "Fallo"],
             "Drop": ["Acierto", "Fallo"],
             "Golpe castigo a favor": ["A palos convertido", "A palos fallado", "A touch", "Juego abierto"],
             "Golpe castigo en contra": ["A palos convertido", "A palos fallado", "A touch", "Juego abierto"],
             "Golpe de castigo en contra": ["Fuera de juego", "En punto de encuentro por tirarse", "En punto de encuentro por retenido", "En punto de encuentro por pescar"],
-            "Maul": ["Liberaci贸n", "Injugable"],
-            "Ruck": ["Liberaci贸n"],
-            "Placaje >> Ruck": ["Liberaci贸n"],
+            "Maul": ["Liberación", "Injugable"],
+            "Ruck": ["Liberación"],
+            "Placaje >> Ruck": ["Liberación"],
             "Placaje en contra": ["Positivo", "Neutro", "Negativo"],
-            "Chute a palos": ["Conversi贸n", "Fallo"],
+            "Chute a palos": ["Conversión", "Fallo"],
             "Placaje a favor": ["Positivo", "Neutro", "Negativo"]
         };
 
         const RULES = {
             "Touch a favor|Perdida por mal lanzamiento": { poss: true },
             "Touch a favor|Perdida por salto a destiempo": { poss: true },
-            "Touch a favor|Perdida por mala coordinaci贸n lanzador-saltador": { poss: true },
+            "Touch a favor|Perdida por mala coordinación lanzador-saltador": { poss: true },
             "Touch a favor|Perdida por amago de lanzamiento": { poss: true },
             "Touch en contra|Recuperada": { poss: true },
-            "Mel茅e a favor|Perdida": { poss: true },
-            "Mel茅e a favor|Golpe de castigo en contra": { poss: true },
-            "Mel茅e en contra|Recuperada": { poss: true },
-            "Mel茅e en contra|Golpe de castigo a favor": { poss: true },
+            "Melée a favor|Perdida": { poss: true },
+            "Melée a favor|Golpe de castigo en contra": { poss: true },
+            "Melée en contra|Recuperada": { poss: true },
+            "Melée en contra|Golpe de castigo a favor": { poss: true },
             "Ensayo|Delantera": { pts: 5 },
             "Ensayo|3/4": { pts: 5 },
-            "Ensayo|Rotura de l铆nea": { pts: 5 },
+            "Ensayo|Rotura de línea": { pts: 5 },
             "Ensayo|Maul": { pts: 5 },
-            "Conversi贸n|Acierto": { pts: 2 },
+            "Conversión|Acierto": { pts: 2 },
             "Drop|Acierto": { pts: 3 },
             "Golpe castigo a favor|A palos convertido": { pts: 3 },
             "Golpe castigo en contra|A palos convertido": { poss: true, pts: 3 },
@@ -817,7 +817,7 @@
             "Golpe de castigo en contra|En punto de encuentro por tirarse": { poss: true },
             "Golpe de castigo en contra|En punto de encuentro por retenido": { poss: true },
             "Golpe de castigo en contra|En punto de encuentro por pescar": { poss: true },
-            "Bal贸n adelantado|": { poss: true }
+            "Balón adelantado|": { poss: true }
         };
 
         const defaultDict = {
@@ -834,7 +834,7 @@
         
         let st = { 
             matchId: null,
-            mod: 'ATAQUE', team: null, myTeam: 'Local', zone: 'Z4-Central', running: false, time: 0, period: '1陋 Parte', pending: null, 
+            mod: 'ATAQUE', team: null, myTeam: 'Local', zone: 'Z4-Central', running: false, time: 0, period: '1ª Parte', pending: null, 
             awaitingZoneFor: null,
             log: [], masterLog: [], redoLog: [], session: 1, timer: null, isFlipped: false, areZonesHidden: false,
             teams: { Local: { l: 'Local', s: 'LOC' }, Visitante: { l: 'Visitante', s: 'VIS' } },
@@ -872,16 +872,16 @@
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition(); recognition.lang = 'es-ES'; recognition.continuous = false; recognition.interimResults = false; 
             recognition.onresult = function(e) { attachVoiceNoteToLastEvent(e.results[0][0].transcript); };
-            recognition.onerror = function(e) { document.getElementById('statusBar').innerText = `鈿狅笍 Error micro: ${e.error}`; stopVoiceDictationUI(); };
+            recognition.onerror = function(e) { document.getElementById('statusBar').innerText = `⚠️ Error micro: ${e.error}`; stopVoiceDictationUI(); };
             recognition.onend = stopVoiceDictationUI;
         }
         function toggleVoiceDictation() {
-            if (!micPermissionGranted) { showAppAlert("鈿狅笍 Activa permisos de micr贸fono en el navegador."); return; }
+            if (!micPermissionGranted) { showAppAlert("⚠️ Activa permisos de micrófono en el navegador."); return; }
             const activeEvents = st.log.filter(e => e.status !== 'revoked by user');
-            if (activeEvents.length === 0) { showAppAlert("鈿狅笍 Registra un evento primero para adjuntarle la nota."); return; }
+            if (activeEvents.length === 0) { showAppAlert("⚠️ Registra un evento primero para adjuntarle la nota."); return; }
             if (isRecordingVoice) { recognition.stop(); } else {
                 isRecordingVoice = true; document.getElementById('btnMic').classList.add('recording');
-                document.getElementById('statusBar').innerText = "馃帣锔?Escuchando..."; recognition.start();
+                document.getElementById('statusBar').innerText = "🎙️ Escuchando..."; recognition.start();
             }
         }
         function stopVoiceDictationUI() { isRecordingVoice = false; const btn = document.getElementById('btnMic'); if(btn) btn.classList.remove('recording'); }
@@ -892,7 +892,7 @@
             }
             if (!last) return;
             last.notes += (last.notes ? " | " : "") + "[Voz]: " + text;
-            document.getElementById('statusBar').innerText = `馃摑 Voz adjuntada a ${last.ev || last.customEv}`; updateLogUI(); saveState(); 
+            document.getElementById('statusBar').innerText = `📝 Voz adjuntada a ${last.ev || last.customEv}`; updateLogUI(); saveState(); 
         }
         function attachTextNoteToLastEvent() {
             const input = document.getElementById('notesInput'); const text = input.value.trim();
@@ -902,13 +902,13 @@
             }
             if (!text || !last) { if(!last) showAppAlert("Registra un evento primero."); return; }
             last.notes += (last.notes ? " | " : "") + "[Texto]: " + text;
-            document.getElementById('statusBar').innerText = `馃摑 Nota adjuntada a ${last.ev || last.customEv}`; input.value = ''; updateLogUI(); saveState();
+            document.getElementById('statusBar').innerText = `📝 Nota adjuntada a ${last.ev || last.customEv}`; input.value = ''; updateLogUI(); saveState();
         }
 
-        function showAppAlert(msg, title = "鈿狅笍 Aviso") {
+        function showAppAlert(msg, title = "⚠️ Aviso") {
             document.getElementById('alert-title').innerText = title; document.getElementById('alert-message').innerText = msg; document.getElementById('modal-alert').classList.add('active');
         }
-        function showAppConfirm(msg, onYes, onNo = null, title = "Confirmaci贸n", yesText = "Aceptar", noText = "Cancelar", isDanger = false) {
+        function showAppConfirm(msg, onYes, onNo = null, title = "Confirmación", yesText = "Aceptar", noText = "Cancelar", isDanger = false) {
             document.getElementById('confirm-title').innerText = title; document.getElementById('confirm-message').innerText = msg;
             const btnYes = document.getElementById('btn-confirm-yes'); const btnNo = document.getElementById('btn-confirm-no');
             btnYes.innerText = yesText; btnNo.innerText = noText; btnYes.style.background = isDanger ? 'var(--danger)' : 'var(--success)';
@@ -958,7 +958,7 @@
                 if (saved) {
                     const p = JSON.parse(saved);
                     st.matchId = p.matchId || null;
-                    st.mod = p.mod || 'ATAQUE'; st.time = p.time || 0; st.period = p.period || '1陋 Parte';
+                    st.mod = p.mod || 'ATAQUE'; st.time = p.time || 0; st.period = p.period || '1ª Parte';
                     st.log = p.log || []; st.masterLog = p.masterLog || []; st.redoLog = p.redoLog || []; st.session = p.session || 1;
                     st.myTeam = p.myTeam || 'Local';
                     if(p.teams) st.teams = p.teams; if(p.stats) st.stats = p.stats;
@@ -981,7 +981,7 @@
                     document.getElementById('scoreL').value = p.sL || 0; document.getElementById('scoreV').value = p.sV || 0;
                     document.getElementById('periodToggle').innerText = st.period; document.getElementById('sessionDisplay').innerText = `#${st.session}`;
                     if (st.areZonesHidden) document.body.classList.add('hide-zone-labels');
-                    document.getElementById('btnFlipPitch').innerText = st.isFlipped ? "猬咃笍 SENTIDO DE ATAQUE" : "SENTIDO DE ATAQUE 鉃★笍";
+                    document.getElementById('btnFlipPitch').innerText = st.isFlipped ? "⬅️ SENTIDO DE ATAQUE" : "SENTIDO DE ATAQUE ➡️";
                     
                     st.running = false; st.adminUnlocked = false; st.wasRunningBeforeAdmin = false;
                     return true;
@@ -994,18 +994,18 @@
         
         function initDefaultLayout() {
             st.layout.modules = {
-                'GENERAL': BASE_GENERAL.filter(e => !e.startsWith('Comod铆n')),
-                'ATAQUE': MOD_EVENTS.ATAQUE.filter(e => !e.startsWith('Comod铆n')),
-                'DEFENSA': MOD_EVENTS.DEFENSA.filter(e => !e.startsWith('Comod铆n')),
-                'ESTATICAS': MOD_EVENTS.ESTATICAS.filter(e => !e.startsWith('Comod铆n')),
-                'JUEGO_PIE': MOD_EVENTS.JUEGO_PIE.filter(e => !e.startsWith('Comod铆n'))
+                'GENERAL': BASE_GENERAL.filter(e => !e.startsWith('Comodín')),
+                'ATAQUE': MOD_EVENTS.ATAQUE.filter(e => !e.startsWith('Comodín')),
+                'DEFENSA': MOD_EVENTS.DEFENSA.filter(e => !e.startsWith('Comodín')),
+                'ESTATICAS': MOD_EVENTS.ESTATICAS.filter(e => !e.startsWith('Comodín')),
+                'JUEGO_PIE': MOD_EVENTS.JUEGO_PIE.filter(e => !e.startsWith('Comodín'))
             };
             st.layout.colOrder = ['GENERAL', 'MODULO', 'SUBFASES'];
         }
 
         function hardResetData() {
             showAppConfirm(
-                "Esto borrar谩 permanentemente los datos del partido, la cola de subida y cerrar谩 tu sesi贸n persistente en esta tableta.",
+                "Esto borrará permanentemente los datos del partido, la cola de subida y cerrará tu sesión persistente en esta tableta.",
                 async () => { 
                     clearAllStates(); 
                     localStorage.removeItem('ruggerUser');
@@ -1015,7 +1015,7 @@
                         tx.objectStore("offlineUploads").clear();
                     } catch(e) {}
                     location.reload(); 
-                }, null, "馃洃 PELIGRO", "Borrar Todo y Salir", "Cancelar", true
+                }, null, "🛑 PELIGRO", "Borrar Todo y Salir", "Cancelar", true
             );
         }
 
@@ -1043,9 +1043,9 @@
             const isLocked = (st.time > 0 || activeEvents.length > 0 || st.session > 1);
             if (isLocked && !st.adminUnlocked) {
                 showAppConfirm(
-                    "El partido est谩 en curso. Modificar la estructura ahora pausar谩 el cron贸metro.\n\n驴Est谩s seguro de querer desbloquear la edici贸n?",
+                    "El partido está en curso. Modificar la estructura ahora pausará el cronómetro.\n\n¿Estás seguro de querer desbloquear la edición?",
                     () => { st.wasRunningBeforeAdmin = st.running; if (st.running) toggleTimer(); st.adminUnlocked = true; updateLockState(); callback(); },
-                    null, "鈿狅笍 MODO ADMINISTRADOR", "Desbloquear", "Cancelar", true
+                    null, "⚠️ MODO ADMINISTRADOR", "Desbloquear", "Cancelar", true
                 );
             } else { callback(); }
         }
@@ -1060,7 +1060,7 @@
                     btnEdit.style.opacity = '0.6';
                     if (st.editMode) toggleEditMode();
                 } else {
-                    btnEdit.title = "Editar disposici贸n de botones";
+                    btnEdit.title = "Editar disposición de botones";
                     btnEdit.style.opacity = '1';
                 }
             }
@@ -1142,12 +1142,12 @@
                     let otherMod = otherChk.getAttribute('data-mod');
                     chk.checked = false; 
                     showAppConfirm(
-                        `La fase '${ev}' ya est谩 asignada al m贸dulo ${otherMod}.\nSolo puede estar activa en un m贸dulo a la vez.\n\n驴Deseas moverla a ${mod}?`,
+                        `La fase '${ev}' ya está asignada al módulo ${otherMod}.\nSolo puede estar activa en un módulo a la vez.\n\n¿Deseas moverla a ${mod}?`,
                         () => {
                             otherChk.checked = false;
                             chk.checked = true;
                         },
-                        null, "Conflicto de M贸dulo", "Mover", "Cancelar"
+                        null, "Conflicto de Módulo", "Mover", "Cancelar"
                     );
                 }
             }
@@ -1161,7 +1161,7 @@
             const df = document.getElementById('dictForm'); 
             
             let html = `<div style="grid-column: 1 / -1; background:white; border:1px solid #e2e8f0; border-radius:6px; padding:12px; margin-bottom:5px;">
-                <h4 style="margin:0 0 10px 0; color:var(--primary); border-bottom:2px solid #f1f5f9; padding-bottom:6px;">Configuraci贸n Espec铆fica de Touch</h4>
+                <h4 style="margin:0 0 10px 0; color:var(--primary); border-bottom:2px solid #f1f5f9; padding-bottom:6px;">Configuración Específica de Touch</h4>
                 <div style="display:flex; gap:15px; flex-wrap:wrap;">
                     <div style="flex:1; min-width:200px;">
                         <label style="display:block; font-size:0.75rem; font-weight:bold; margin-bottom:4px; color:#475569;">Formaciones (separadas por coma):</label>
@@ -1189,7 +1189,7 @@
                     h += `<div style="padding-left:12px; border-left:2px dotted #cbd5e1; margin-left:10px;">`;
                     SUB_EVENTS[ev].forEach(sub => {
                         const ck = `${ev}|${sub}`;
-                        h += `<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; margin-bottom:3px;"><span style="color:#64748b; max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${sub}">鈫?${sub}</span><input type="text" data-dict-key="${ck}" class="form-control dict-input" style="width:110px; flex-shrink:0; padding:3px; font-size:0.7rem; background:#fff; border:1px solid #cbd5e1; border-radius:4px;" value="${dict[ck] || sub}" ${isLocked?'disabled':''}></div>`;
+                        h += `<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; margin-bottom:3px;"><span style="color:#64748b; max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${sub}">↳ ${sub}</span><input type="text" data-dict-key="${ck}" class="form-control dict-input" style="width:110px; flex-shrink:0; padding:3px; font-size:0.7rem; background:#fff; border:1px solid #cbd5e1; border-radius:4px;" value="${dict[ck] || sub}" ${isLocked?'disabled':''}></div>`;
                     });
                     h += `</div>`;
                 }
@@ -1197,7 +1197,7 @@
             };
 
             Object.keys(ALL_MODS_MASTER).forEach(mod => {
-                const title = mod === 'GENERAL' ? '1. General' : `M贸dulo: ${MODULES[mod].name}`;
+                const title = mod === 'GENERAL' ? '1. General' : `Módulo: ${MODULES[mod].name}`;
                 const clr = mod === 'GENERAL' ? 'var(--secondary)' : MODULES[mod].color;
                 html += `<div style="background:white; border:1px solid #e2e8f0; border-radius:6px; padding:12px; display:flex; flex-direction:column;"><h4 style="margin:0 0 12px 0; color:${clr};">${title}</h4>`;
                 
@@ -1260,7 +1260,7 @@
             
             document.getElementById('scoreLblL').innerText = sL; document.getElementById('scoreLblV').innerText = sV;
             document.getElementById('stLblL').innerText = sL; document.getElementById('stLblV').innerText = sV;
-            document.getElementById('btnTeamL').innerText = `Posesi贸n: ${sL}`; document.getElementById('btnTeamV').innerText = `Posesi贸n: ${sV}`;
+            document.getElementById('btnTeamL').innerText = `Posesión: ${sL}`; document.getElementById('btnTeamV').innerText = `Posesión: ${sV}`;
             
             if(st.team === 'Local') document.getElementById('btnTeamL').classList.add('selected');
             else if(st.team === 'Visitante') document.getElementById('btnTeamV').classList.add('selected');
@@ -1270,7 +1270,7 @@
             }
 
             const mb = document.getElementById('moduleBadge');
-            mb.innerText = `${MODULES[st.mod].icon} M脫DULO ${MODULES[st.mod].name.toUpperCase()}`;
+            mb.innerText = `${MODULES[st.mod].icon} MÓDULO ${MODULES[st.mod].name.toUpperCase()}`;
             mb.style.backgroundColor = MODULES[st.mod].color;
 
             applyColumnOrder(); renderColumns(); updateTime(); updateStatsUI(); updateLogUI(); initPitch(); updateLockState();
@@ -1322,13 +1322,13 @@
         function togglePeriod() { 
             if (!st.running && st.time === 0) return;
             const prevPeriod = st.period;
-            st.period = st.period === "1陋 Parte" ? "2陋 Parte" : "1陋 Parte"; 
+            st.period = st.period === "1ª Parte" ? "2ª Parte" : "1ª Parte"; 
             document.getElementById('periodToggle').innerText = st.period; 
             logSystemEvent('Sistema', 'Cambio Periodo', st.period, { period: prevPeriod }); 
         }
         
         function toggleZoneLabels() { st.areZonesHidden = !st.areZonesHidden; document.body.classList.toggle('hide-zone-labels', st.areZonesHidden); saveState(); }
-        function togglePitchFlip() { st.isFlipped = !st.isFlipped; document.getElementById('btnFlipPitch').innerText = st.isFlipped ? "猬咃笍 SENTIDO DE ATAQUE" : "SENTIDO DE ATAQUE 鉃★笍"; initPitch(); saveState(); }
+        function togglePitchFlip() { st.isFlipped = !st.isFlipped; document.getElementById('btnFlipPitch').innerText = st.isFlipped ? "⬅️ SENTIDO DE ATAQUE" : "SENTIDO DE ATAQUE ➡️"; initPitch(); saveState(); }
 
         function initPitch() {
             const pc = document.getElementById('pitchGrid'); pc.innerHTML = '';
@@ -1339,7 +1339,7 @@
                     const z = zList[i]; const ch = chs[c]; const d = document.createElement('div'); 
                     d.className = `zone z${z} ${st.zone === ('Z'+z+'-'+ch) ? 'selected' : ''}`; d.innerHTML = `<span>Z${z}</span><span>${ch}</span>`;
                     d.onclick = () => { 
-                        if (!st.running && st.time === 0) { showAppAlert("Debes dar inicio al cron贸metro antes de cambiar la zona."); return; }
+                        if (!st.running && st.time === 0) { showAppAlert("Debes dar inicio al cronómetro antes de cambiar la zona."); return; }
                         const prevZone = st.zone;
                         document.querySelectorAll('.zone').forEach(el=>el.classList.remove('selected')); 
                         d.classList.add('selected'); st.zone = `Z${z}-${ch}`; 
@@ -1365,7 +1365,7 @@
             if (btnL) btnL.classList.toggle('selected', t === 'Local'); 
             if (btnV) btnV.classList.toggle('selected', t === 'Visitante'); 
             if (!silent && (st.running || st.time > 0) && t && st.teams[t]) {
-                logSystemEvent('Contexto', 'Posesi贸n', st.teams[t].s, { team: prevTeam }); 
+                logSystemEvent('Contexto', 'Posesión', st.teams[t].s, { team: prevTeam }); 
             }
             saveState(); 
         }
@@ -1376,10 +1376,10 @@
             document.body.classList.toggle('is-editing', st.editMode);
             const btn = document.getElementById('btnEditLayout');
             btn.classList.toggle('active', st.editMode);
-            btn.innerText = st.editMode ? '馃摑 Fin Edici贸n' : '鉁忥笍 Layout';
+            btn.innerText = st.editMode ? '📝 Fin Edición' : '✏️ Layout';
             
             if (st.editMode) {
-                document.getElementById('statusBar').innerText = "MODO EDICI脫N: Toca un bot贸n y luego otro para intercambiarlos. Usa flechas en cabeceras para mover columnas.";
+                document.getElementById('statusBar').innerText = "MODO EDICIÓN: Toca un botón y luego otro para intercambiarlos. Usa flechas en cabeceras para mover columnas.";
             } else {
                 document.getElementById('statusBar').innerText = "Estado: Listo";
                 if (st.adminUnlocked) { st.adminUnlocked = false; if (st.wasRunningBeforeAdmin) { toggleTimer(); st.wasRunningBeforeAdmin = false; } updateLockState(); }
@@ -1395,7 +1395,7 @@
                 document.getElementById('statusBar').innerText = `Intercambio: Origen seleccionado. Toca destino en la misma columna.`;
             } else {
                 if (st.moveSource.colKey !== colKey) {
-                    showAppAlert("Solo puedes reordenar botones dentro de la misma columna. Usa el Diccionario para mover fases entre m贸dulos.");
+                    showAppAlert("Solo puedes reordenar botones dentro de la misma columna. Usa el Diccionario para mover fases entre módulos.");
                     st.moveSource = null; renderColumns(); return;
                 }
                 const src = st.moveSource;
@@ -1404,7 +1404,7 @@
                 st.layout.modules[colKey][idx] = temp;
                 st.moveSource = null;
                 renderColumns();
-                document.getElementById('statusBar').innerText = `MODO EDICI脫N: Intercambio completado.`;
+                document.getElementById('statusBar').innerText = `MODO EDICIÓN: Intercambio completado.`;
                 saveState();
             }
         }
@@ -1442,7 +1442,7 @@
                 c1.appendChild(b);
             });
 
-            document.getElementById('col2Header').innerText = `2. M贸dulo ${MODULES[st.mod].name.toUpperCase()}`;
+            document.getElementById('col2Header').innerText = `2. Módulo ${MODULES[st.mod].name.toUpperCase()}`;
             const c2 = document.getElementById('col2-content'); c2.innerHTML = '';
             const mEvents = st.layout.modules[st.mod] || [];
             mEvents.forEach((e, idx) => {
@@ -1452,7 +1452,7 @@
                     if (st.moveSource && st.moveSource.colKey === st.mod && st.moveSource.idx === idx) b.classList.add('move-source');
                     b.onclick = () => handleMoveClick(st.mod, idx);
                 } else {
-                    b.onclick = () => handleEventClick(e, 'M贸dulo');
+                    b.onclick = () => handleEventClick(e, 'Módulo');
                 }
                 c2.appendChild(b);
             });
@@ -1488,7 +1488,7 @@
             let num = parseInt(inp.value);
             if (num !== 0 && num !== 1 && (num < 2 || num > 14)) {
                 inp.value = '';
-                showAppAlert("El n煤mero de jugadores en la touch debe estar entre 2 y 14 (o 0 para descartar el campo).");
+                showAppAlert("El número de jugadores en la touch debe estar entre 2 y 14 (o 0 para descartar el campo).");
             }
         }
 
@@ -1528,7 +1528,7 @@
 
         function handleEventClick(ev, cat) {
             if (st.editMode) return;
-            if (!st.running && st.time === 0) { showAppAlert("Debes dar inicio al cron贸metro antes de registrar eventos."); return; }
+            if (!st.running && st.time === 0) { showAppAlert("Debes dar inicio al cronómetro antes de registrar eventos."); return; }
             
             let evLower = ev.toLowerCase();
             let forcedTeam = null;
@@ -1546,7 +1546,7 @@
             }
 
             if (!st.team && evLower === 'ensayo') {
-                showAppAlert("Selecciona la Posesi贸n en la parte superior antes de registrar un Ensayo.");
+                showAppAlert("Selecciona la Posesión en la parte superior antes de registrar un Ensayo.");
                 return;
             }
 
@@ -1554,8 +1554,8 @@
                 let zoneMatch = st.zone.match(/Z([2-6])-(Izq|Der)/);
                 if (!zoneMatch) {
                     st.awaitingZoneFor = { ev, cat };
-                    document.getElementById('statusBar').innerText = "鈿狅笍 Touch: Clic en Z2-Z6 lateral.";
-                    document.getElementById('col3-content').innerHTML = '<div class="subfase-placeholder" style="color:var(--warning); font-weight:bold;">鈿狅笍 Selecciona una zona lateral (Z2-Z6) en el campo para continuar con la Touch...</div>';
+                    document.getElementById('statusBar').innerText = "⚠️ Touch: Clic en Z2-Z6 lateral.";
+                    document.getElementById('col3-content').innerHTML = '<div class="subfase-placeholder" style="color:var(--warning); font-weight:bold;">⚠️ Selecciona una zona lateral (Z2-Z6) en el campo para continuar con la Touch...</div>';
                     closeTouchPopup();
                     return;
                 }
@@ -1564,8 +1564,8 @@
                 let validZone = isMyTeamScoring ? st.zone.startsWith('Z7') : st.zone.startsWith('Z1');
                 if (!validZone) {
                     st.awaitingZoneFor = { ev, cat };
-                    document.getElementById('statusBar').innerText = `鈿狅笍 Ensayo: Clic en Z${isMyTeamScoring?7:1}.`;
-                    document.getElementById('col3-content').innerHTML = `<div class="subfase-placeholder" style="color:var(--danger); font-weight:bold;">鈿狅笍 Para un Ensayo de este equipo, debes marcar la Zona ${isMyTeamScoring?7:1} en el campo...</div>`;
+                    document.getElementById('statusBar').innerText = `⚠️ Ensayo: Clic en Z${isMyTeamScoring?7:1}.`;
+                    document.getElementById('col3-content').innerHTML = `<div class="subfase-placeholder" style="color:var(--danger); font-weight:bold;">⚠️ Para un Ensayo de este equipo, debes marcar la Zona ${isMyTeamScoring?7:1} en el campo...</div>`;
                     closeTouchPopup();
                     return;
                 }
@@ -1593,7 +1593,7 @@
             } else commitEvent("", null);
         }
 
-        function clearSub() { st.pending = null; document.getElementById('col3-content').innerHTML = '<div class="subfase-placeholder">Esperando acci贸n en Col 1 o 2...</div>'; }
+        function clearSub() { st.pending = null; document.getElementById('col3-content').innerHTML = '<div class="subfase-placeholder">Esperando acción en Col 1 o 2...</div>'; }
 
         function logSystemEvent(cat, ev, sub, customPrevState = null) {
             const sL = document.getElementById('scoreL').value; 
@@ -1620,7 +1620,7 @@
         }
 
         function commitEvent(subRaw, subKey) {
-            if(!st.team) { showAppAlert("Selecciona el equipo de posesi贸n en la parte superior."); return; }
+            if(!st.team) { showAppAlert("Selecciona el equipo de posesión en la parte superior."); return; }
             
             const prevScoreL = document.getElementById('scoreL').value;
             const prevScoreV = document.getElementById('scoreV').value;
@@ -1676,7 +1676,7 @@
                 }
                 if (rule.poss) {
                     newPossession = initiatingTeam === 'Local' ? 'Visitante' : 'Local';
-                    autoNotes += `[Auto: Cambio Posesi贸n] `;
+                    autoNotes += `[Auto: Cambio Posesión] `;
                 }
             }
 
@@ -1700,7 +1700,7 @@
                 selectTeam(newPossession, true);
             }
 
-            document.getElementById('statusBar').innerText = `馃摑 Registrado: ${customEv} ${customSub ? '('+customSub+')' : ''}`;
+            document.getElementById('statusBar').innerText = `📝 Registrado: ${customEv} ${customSub ? '('+customSub+')' : ''}`;
             
             clearSub(); updateLogUI(); saveState();
         }
@@ -1791,12 +1791,12 @@
             if (lastAction.action === 'Sistema') {
                 desc = `[Sistema] ${lastAction.ev || lastAction.cat}: ${lastAction.sub || ''}`;
             } else {
-                const evName = lastAction.customEv || lastAction.ev || 'Acci贸n';
+                const evName = lastAction.customEv || lastAction.ev || 'Acción';
                 const subName = lastAction.customSub || lastAction.sub || '';
                 desc = `${lastAction.action || ''} - ${evName}${subName ? ' (' + subName + ')' : ''}`;
             }
 
-            document.getElementById('statusBar').innerText = `鈫╋笍 Anulado: ${desc.trim()}`;
+            document.getElementById('statusBar').innerText = `↩️ Anulado: ${desc.trim()}`;
 
             updateStatsUI();
             updateLogUI();
@@ -1854,12 +1854,12 @@
             if (action.action === 'Sistema') {
                 desc = `[Sistema] ${action.ev || action.cat}: ${action.sub || ''}`;
             } else {
-                const evName = action.customEv || action.ev || 'Acci贸n';
+                const evName = action.customEv || action.ev || 'Acción';
                 const subName = action.customSub || action.sub || '';
                 desc = `${action.action || ''} - ${evName}${subName ? ' (' + subName + ')' : ''}`;
             }
 
-            document.getElementById('statusBar').innerText = `鈫笍 Restaurado: ${desc.trim()}`;
+            document.getElementById('statusBar').innerText = `↪️ Restaurado: ${desc.trim()}`;
 
             updateStatsUI();
             updateLogUI();
@@ -1884,12 +1884,12 @@
                 const revokedBadge = isRevoked ? '<span style="color:#ef4444; font-weight:bold; font-size:0.55rem; border:1px solid #fca5a5; background:#fef2f2; padding:0 3px; border-radius:2px; margin-right:4px;">REVOCADO</span>' : '';
 
                 if (e.action === 'Sistema') {
-                    li.innerHTML = `${revokedBadge}<strong style="color:#94a3b8;">[${e.time.split(' - ')[1]}] 鈿欙笍 ${e.ev}:</strong> ${e.sub}`;
+                    li.innerHTML = `${revokedBadge}<strong style="color:#94a3b8;">[${e.time.split(' - ')[1]}] ⚙️ ${e.ev}:</strong> ${e.sub}`;
                 } else {
-                    li.innerHTML = `${revokedBadge}<strong style="color:#64748b;">[${e.time.split(' - ')[1]}]</strong> <strong style="color:${e.action === st.teams.Local.s ? 'var(--border-local)' : 'var(--border-visitor)'}">${e.action}</strong>: ${e.customEv} ${e.customSub ? '<span style="color:#475569">('+e.customSub+')</span>' : ''} <span style="font-size:0.55rem; background:#e2e8f0; padding:1px 4px; border-radius:3px;">@${e.zone}</span> ${e.notes ? '馃摑' : ''}`;
+                    li.innerHTML = `${revokedBadge}<strong style="color:#64748b;">[${e.time.split(' - ')[1]}]</strong> <strong style="color:${e.action === st.teams.Local.s ? 'var(--border-local)' : 'var(--border-visitor)'}">${e.action}</strong>: ${e.customEv} ${e.customSub ? '<span style="color:#475569">('+e.customSub+')</span>' : ''} <span style="font-size:0.55rem; background:#e2e8f0; padding:1px 4px; border-radius:3px;">@${e.zone}</span> ${e.notes ? '📝' : ''}`;
                     if (!isRevoked && e.teamKey) { 
                         if(e.ev === 'Ensayo') kpis[e.teamKey].ens++; 
-                        if(e.ev.includes('Mel茅e')) kpis[e.teamKey].mel++; 
+                        if(e.ev.includes('Melée')) kpis[e.teamKey].mel++; 
                         if(e.ev.includes('Touch')) kpis[e.teamKey].tou++; 
                         if(e.ev.includes('Golpe de castigo') || e.ev.includes('Golpe castigo')) kpis[e.teamKey].gol++; 
                     }
@@ -1935,7 +1935,7 @@
         }
 
         function resetMatch() {
-            showAppConfirm("驴Archivar sesi贸n actual y resetear cron贸metro a cero?", () => {
+            showAppConfirm("¿Archivar sesión actual y resetear cronómetro a cero?", () => {
                 if (st.running) toggleTimer();
                 st.masterLog = st.masterLog.concat(st.log); 
                 st.log = []; 
@@ -1958,7 +1958,7 @@
                 updateTime(); 
                 updateStatsUI(); 
                 updateLogUI(); 
-                logSystemEvent('Sistema', 'Nueva Sesi贸n', `ID: ${st.session}`); 
+                logSystemEvent('Sistema', 'Nueva Sesión', `ID: ${st.session}`); 
                 saveState();
             }, null, "Resetear Partido");
         }
