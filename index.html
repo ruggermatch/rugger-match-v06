@@ -353,7 +353,7 @@
 
     <div id="modal-settings" class="modal-overlay">
         <div class="modal-content">
-            <h3 style="margin-top:0;">Organizaci贸n de M贸dulos y Diccionario <span id="version-settings" style="font-size: 0.8rem; color: #64748b; font-weight: normal;"></span></h3>
+            <h3 style="margin-top:0;">Organizaci贸n de M贸dulos y Diccionario <span id="version-settings" style="font-size: 0.8rem; color: #64748b; font-weight: normal; cursor: pointer;" title="Triple clic para forzar log de acceso"></span></h3>
             <p id="dictLockWarning" style="font-size:0.85rem; color:var(--danger); font-weight:bold; display:none; background:#fef2f2; padding:8px; border-radius:4px; border:1px solid #fecaca; margin-bottom:10px;">馃敀 Layout bloqueado: Partido en curso.</p>
             <p style="font-size:0.8rem; color:#64748b; margin-bottom: 10px;">Selecciona en qu茅 m贸dulo debe aparecer cada fase y ren贸mbralas si es necesario.</p>
             
@@ -614,32 +614,72 @@
 
         window.addEventListener('online', processQueue);
 
+        async function sendAuditLog(triggerReason = 'LOGIN_AUTOMATICO') {
+            if (!currentUser) return;
+
+            const today = new Date().toDateString();
+            const lastLog = localStorage.getItem('ruggerLastLogDate');
+
+            if (triggerReason === 'LOGIN_AUTOMATICO' && lastLog === today) return;
+
+            const logPayload = {
+                action: 'logAccess',
+                timestamp: getFullTimestamp(),
+                userId: currentUser.id,
+                email: currentUser.email,
+                trigger: triggerReason,
+                version: APP_VERSION,
+                userAgent: navigator.userAgent
+            };
+
+            const encryptedPayload = CryptoJS.AES.encrypt(JSON.stringify(logPayload), "RuggerMatch2026").toString();
+
+            const requestData = {
+                action: 'uploadLog',
+                payload: encryptedPayload
+            };
+
+            try {
+                if (!navigator.onLine) throw new Error("Offline");
+                const response = await fetch(GAS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(requestData),
+                    headers: { 'Content-Type': 'text/plain' }
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    localStorage.setItem('ruggerLastLogDate', today);
+                }
+            } catch (e) {
+                await saveToQueue(requestData);
+            }
+        }
+
         function handleGoogleLogin(response) {
-			const payload = parseJwt(response.credential);
-			const userId = payload.sub;
+            const payload = parseJwt(response.credential);
+            const userId = payload.sub;
 
-			// Lista Blanca de Cliente (Debe coincidir con la del backend)
-			const allowedUsers = ["111156861575560627970", "103537033993342212835"]; 
+            const allowedUsers = ["111156861575560627970", "103537033993342212835"]; 
 
-			if (!allowedUsers.includes(userId)) {
-				showAppAlert("Acceso denegado. Pasa este ID al admin: " + userId, "Error");
-				return;
-			}
+            if (!allowedUsers.includes(userId)) {
+                showAppAlert("Acceso denegado. Pasa este ID al admin: " + userId, "Error");
+                return; 
+            }
 
-			currentUser = { email: payload.email, name: payload.name, id: userId };
-			localStorage.setItem('ruggerUser', JSON.stringify(currentUser));
-			
-			document.getElementById('screen-login').style.display = 'none';
-			document.getElementById('screen-login').classList.remove('active');
-			
-			// Enrutamiento forzado para evitar pantallas en blanco
-			if (st.time === 0 && st.log.length === 0) {
-				requestFullscreenAndNav('screen-setup');
-			} else {
-				// Recupera la interfaz del partido en curso si existía en memoria
-				requestFullscreenAndNav('screen-tracker');
-			}
-		}
+            currentUser = { email: payload.email, name: payload.name, id: userId };
+            localStorage.setItem('ruggerUser', JSON.stringify(currentUser));
+            
+            document.getElementById('screen-login').style.display = 'none';
+            document.getElementById('screen-login').classList.remove('active');
+            
+            sendAuditLog('LOGIN_AUTOMATICO');
+
+            if(st.time === 0 && st.log.length === 0) {
+                requestFullscreenAndNav('screen-setup');
+            } else {
+                requestFullscreenAndNav('screen-tracker');
+            }
+        }
 
         function parseJwt(token) {
             const base64Url = token.split('.')[1];
@@ -1031,6 +1071,31 @@
             if(document.getElementById('version-login')) document.getElementById('version-login').innerText = "v" + APP_VERSION;
             if(document.getElementById('version-menu')) document.getElementById('version-menu').innerText = "v" + APP_VERSION;
             if(document.getElementById('version-settings')) document.getElementById('version-settings').innerText = "v" + APP_VERSION;
+
+            let versionClickCount = 0;
+            let clickTimer;
+            const elVersionSettings = document.getElementById('version-settings');
+            if (elVersionSettings) {
+                elVersionSettings.addEventListener('click', () => {
+                    versionClickCount++;
+                    clearTimeout(clickTimer);
+                    
+                    if (versionClickCount >= 3) {
+                        versionClickCount = 0;
+                        sendAuditLog('FORZADO_MANUAL');
+                        
+                        const originalText = elVersionSettings.innerText;
+                        elVersionSettings.innerText = "Log Forzado";
+                        elVersionSettings.style.color = "var(--success)";
+                        setTimeout(() => {
+                            elVersionSettings.innerText = originalText;
+                            elVersionSettings.style.color = "#64748b";
+                        }, 2000);
+                    } else {
+                        clickTimer = setTimeout(() => { versionClickCount = 0; }, 1000);
+                    }
+                });
+            }
 
             const recovered = loadState();
             const mg = document.getElementById('modulesGrid'); mg.innerHTML = '';
