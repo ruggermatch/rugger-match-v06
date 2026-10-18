@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>RuggerMatch - Sistema Modular SPA PWA</title>
+    <title>RuggerMatch - v0.6.1.1</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1e293b">
     <link rel="icon" type="image/png" href="./icon.png">
@@ -21,7 +21,7 @@
             --g1: #4ade80; --g2: #22c55e; --g3: #16a34a; --g4: #15803d; --g5: #166534; --g6: #14532d; --g7: #064e3b;
         }
         * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; touch-action: manipulation; }
-        body { margin: 0; padding: 0; background-color: var(--bg); color: var(--primary); height: 100vh; width: 100vw; overflow: hidden; }
+        body { margin: 0; padding: 0; background-color: var(--bg); color: var(--primary); height: 100dvh; width: 100vw; overflow: hidden; padding-bottom: env(safe-area-inset-bottom); }
 
         #portraitWarning { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--primary); color: white; z-index: 9999; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
         @media screen and (orientation: portrait) { #portraitWarning { display: flex; } .spa-screen { display: none !important; } }
@@ -223,15 +223,32 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        #update-banner {
+            display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: var(--primary); color: white; padding: 12px 20px; border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 10000; align-items: center; gap: 12px;
+            border: 2px solid var(--secondary); font-size: 0.9rem; font-weight: bold; width: max-content;
+        }
+        #update-banner button {
+            background: var(--success); color: white; border: none; padding: 6px 12px;
+            border-radius: 4px; font-weight: bold; cursor: pointer; transition: transform 0.2s;
+        }
+        #update-banner button:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
+    <div id="update-banner">
+        <span>🔄 Nueva versión disponible</span>
+        <button id="btn-update-app">Actualizar ahora</button>
+    </div>
+
     <div id="portraitWarning"><h2>⚠️ Gira el dispositivo</h2><p>La aplicación exige orientación apaisada.</p></div>
 
     <div id="screen-login" class="spa-screen active" style="align-items: center; justify-content: center;">
         <div class="card" style="width: 320px; text-align: center;">
-            <h2 style="margin-top:0;">RuggerMatch PWA</h2>
-            <p style="font-size: 0.85rem; color:#64748b; margin-bottom: 20px;">Acceso Piloto Serverless</p>
+            <h2 style="margin-top:0;">Rugger Match</h2>
+            <p style="font-size: 0.85rem; color:#64748b; margin-bottom: 20px;">v0.6.1.2</p>
             
             <div id="g_id_onload"
                  data-client_id="302290363381-8n8fsn8k3ev0c26j2iui7vo8p11jbfaj.apps.googleusercontent.com"
@@ -524,6 +541,15 @@
     </div>
 
     <script>
+        window.addEventListener('error', function(e) {
+            const sb = document.getElementById('statusBar');
+            if (sb) {
+                sb.innerText = `🛑 ERR: ${e.message} (L: ${e.lineno})`;
+                sb.style.color = 'white';
+                sb.style.backgroundColor = 'var(--danger)';
+            }
+        });
+
         const GAS_URL = "https://script.google.com/macros/s/AKfycbwBwRm5R6xne2FCfHR978DhTOmubo21DKTyKLWfk5IOfpGJBOyh_prsupXUAnEIaL4f/exec";
         let currentUser = null;
 
@@ -589,12 +615,13 @@
             const allowedUsers = ["111156861575560627970", "103537033993342212835"]; 
 
             if (!allowedUsers.includes(userId)) {
-                //showAppAlert("Acceso denegado: Usuario no autorizado para el piloto.", "Error de Autorización");
 				showAppAlert("Acceso denegado. Pasa este ID al admin: " + userId, "Error");
                 return; // Bloquea el acceso y mantiene al usuario en la pantalla de login
             }
 
             currentUser = { email: payload.email, name: payload.name, id: userId };
+            localStorage.setItem('ruggerUser', JSON.stringify(currentUser));
+            
             document.getElementById('screen-login').style.display = 'none';
             document.getElementById('screen-login').classList.remove('active');
             
@@ -927,8 +954,17 @@
 
         function hardResetData() {
             showAppConfirm(
-                "Esto borrará permanentemente todos los datos del partido actual en esta tableta.",
-                () => { clearAllStates(); location.reload(); }, null, "🛑 PELIGRO", "Borrar Datos", "Cancelar", true
+                "Esto borrará permanentemente los datos del partido, la cola de subida y cerrará tu sesión persistente en esta tableta.",
+                async () => { 
+                    clearAllStates(); 
+                    localStorage.removeItem('ruggerUser');
+                    try {
+                        const db = await openDB();
+                        const tx = db.transaction("offlineUploads", "readwrite");
+                        tx.objectStore("offlineUploads").clear();
+                    } catch(e) {}
+                    location.reload(); 
+                }, null, "🛑 PELIGRO", "Borrar Todo y Salir", "Cancelar", true
             );
         }
 
@@ -990,8 +1026,27 @@
                 mg.appendChild(d);
             });
             initPitch(); applyColumnOrder(); updateLockState(); checkMicrophonePermission();
-            if(recovered && (st.time > 0 || st.log.length > 0)) { document.getElementById('modal-recovery').classList.add('active'); } 
-            else { document.getElementById('screen-login').style.display = 'flex'; }
+            
+            const savedUser = localStorage.getItem('ruggerUser');
+            
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.getElementById('screen-login').style.display = 'none';
+                document.getElementById('screen-login').classList.remove('active');
+                
+                if(recovered && (st.time > 0 || st.log.length > 0)) { 
+                    document.getElementById('modal-recovery').classList.add('active'); 
+                } else {
+                    document.getElementById('screen-setup').style.display = 'flex';
+                    document.getElementById('screen-setup').classList.add('active');
+                }
+            } else {
+                if(recovered && (st.time > 0 || st.log.length > 0)) { 
+                    document.getElementById('modal-recovery').classList.add('active'); 
+                } else { 
+                    document.getElementById('screen-login').style.display = 'flex'; 
+                }
+            }
         }
 
         function recoverSession() { document.getElementById('modal-recovery').classList.remove('active'); startMatch(); }
@@ -1845,7 +1900,41 @@
             }
         });
 
-        if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js')); }
+        let newWorker;
+        const btnUpdate = document.getElementById('btn-update-app');
+
+        if (btnUpdate) {
+            btnUpdate.addEventListener('click', function() {
+                if (newWorker) {
+                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                }
+            });
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then(reg => {
+                    reg.addEventListener('updatefound', () => {
+                        newWorker = reg.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                document.getElementById('update-banner').style.display = 'flex';
+                            }
+                        });
+                    });
+                });
+
+                let refreshing = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (!refreshing) {
+                        refreshing = true;
+                        saveState(); 
+                        window.location.reload();
+                    }
+                });
+            });
+        }
+        
         window.addEventListener('DOMContentLoaded', initSetup);
     </script>
 </body>
