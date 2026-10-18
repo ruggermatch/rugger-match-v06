@@ -1,5 +1,5 @@
-<!DOCTYPE html>
 <html lang="es">
+<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -615,26 +615,31 @@
         window.addEventListener('online', processQueue);
 
         function handleGoogleLogin(response) {
-            const payload = parseJwt(response.credential);
-            const userId = payload.sub;
+			const payload = parseJwt(response.credential);
+			const userId = payload.sub;
 
-            const allowedUsers = ["111156861575560627970", "103537033993342212835"]; 
+			// Lista Blanca de Cliente (Debe coincidir con la del backend)
+			const allowedUsers = ["111156861575560627970", "103537033993342212835"]; 
 
-            if (!allowedUsers.includes(userId)) {
+			if (!allowedUsers.includes(userId)) {
 				showAppAlert("Acceso denegado. Pasa este ID al admin: " + userId, "Error");
-                return; 
-            }
+				return;
+			}
 
-            currentUser = { email: payload.email, name: payload.name, id: userId };
-            localStorage.setItem('ruggerUser', JSON.stringify(currentUser));
-            
-            document.getElementById('screen-login').style.display = 'none';
-            document.getElementById('screen-login').classList.remove('active');
-            
-            if(st.time === 0 && st.log.length === 0) {
-                requestFullscreenAndNav('screen-setup');
-            }
-        }
+			currentUser = { email: payload.email, name: payload.name, id: userId };
+			localStorage.setItem('ruggerUser', JSON.stringify(currentUser));
+			
+			document.getElementById('screen-login').style.display = 'none';
+			document.getElementById('screen-login').classList.remove('active');
+			
+			// Enrutamiento forzado para evitar pantallas en blanco
+			if (st.time === 0 && st.log.length === 0) {
+				requestFullscreenAndNav('screen-setup');
+			} else {
+				// Recupera la interfaz del partido en curso si existía en memoria
+				requestFullscreenAndNav('screen-tracker');
+			}
+		}
 
         function parseJwt(token) {
             const base64Url = token.split('.')[1];
