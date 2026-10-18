@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ruggermatch-pwa-v2'; // Cambia a v3, v4, etc., cuando actualices index.html
+const CACHE_NAME = 'ruggermatch-pwa-v3'; // Cambia a v3, v4, etc., cuando actualices index.html
 const ASSETS = [
   './index.html',
   './manifest.json',
