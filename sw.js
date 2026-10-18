@@ -1,17 +1,19 @@
-const CACHE_NAME = 'ruggermatch-pwa-v8'; // Versión incrementada
+const CACHE_NAME = 'ruggermatch-pwa-v9'; // Versión forzada para purga
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './icon.png',
+  './icon.jpg', // CORRECCIÓN CRÍTICA: La extensión debe coincidir con el archivo físico en GitHub
   'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js'
 ];
 
 self.addEventListener('install', event => {
+  // INYECCIÓN OBLIGATORIA: Rompe el bloqueo de espera y fuerza la toma de control
+  self.skipWaiting();
+  
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
   );
-  // Se ha eliminado self.skipWaiting() para no interrumpir la app en uso
 });
 
 self.addEventListener('activate', event => {
@@ -24,7 +26,7 @@ self.addEventListener('activate', event => {
           }
         })
       );
-    }).then(() => self.clients.claim())
+    }).then(() => self.clients.claim()) // Secuestra las pestañas activas
   );
 });
 
@@ -32,6 +34,7 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   
   const url = new URL(event.request.url);
+  // El bypass para los endpoints de telemetría de Google
   if (url.hostname.includes('google.com') || url.hostname.includes('script.google.com')) {
       return;
   }
@@ -43,7 +46,7 @@ self.addEventListener('fetch', event => {
   );
 });
 
-// Listener para recibir la orden de actualización desde index.html
+// Listener conservado por compatibilidad con tu lógica de UI
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
