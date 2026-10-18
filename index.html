@@ -21,7 +21,7 @@
             --g1: #4ade80; --g2: #22c55e; --g3: #16a34a; --g4: #15803d; --g5: #166534; --g6: #14532d; --g7: #064e3b;
         }
         * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; touch-action: manipulation; }
-        body { margin: 0; padding: 0; background-color: var(--bg); color: var(--primary); height: 100dvh; width: 100vw; overflow: hidden; padding-bottom: env(safe-area-inset-bottom); }
+        body { margin: 0; padding: 0; background-color: var(--bg); color: var(--primary); height: 100vh; height: 100dvh; width: 100vw; overflow: hidden; padding-bottom: env(safe-area-inset-bottom); }
 
         #portraitWarning { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--primary); color: white; z-index: 9999; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
         @media screen and (orientation: portrait) { #portraitWarning { display: flex; } .spa-screen { display: none !important; } }
