@@ -589,7 +589,8 @@
             const allowedUsers = ["111156861575560627970"]; 
 
             if (!allowedUsers.includes(userId)) {
-                showAppAlert("Acceso denegado: Usuario no autorizado para el piloto.", "Error de Autorización");
+                //showAppAlert("Acceso denegado: Usuario no autorizado para el piloto.", "Error de Autorización");
+				showAppAlert("Acceso denegado. Pasa este ID al admin: " + userId, "Error");
                 return; // Bloquea el acceso y mantiene al usuario en la pantalla de login
             }
 
