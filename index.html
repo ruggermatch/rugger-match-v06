@@ -8,7 +8,6 @@
     <meta name="theme-color" content="#1e293b">
     <link rel="icon" type="image/png" href="./icon.png">
     <link rel="apple-touch-icon" href="./icon.png">
-    <!-- Etiquetas PWA añadidas para asegurar comportamiento standalone en iOS y Android -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -241,13 +240,6 @@
     </style>
 </head>
 <body>
-    <!-- Añadido el banner de instalación PWA -->
-    <div id="install-banner" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--secondary); color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 10000; align-items: center; gap: 12px; border: 2px solid white; font-size: 0.9rem; font-weight: bold; width: max-content;">
-        <span>📲 Instalar RuggerMatch</span>
-        <button id="btn-install-app" style="background: var(--success); color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">Instalar</button>
-        <button onclick="document.getElementById('install-banner').style.display='none'" style="background: transparent; color: white; border: none; font-size: 1.2rem; cursor: pointer; padding: 0 4px;">&times;</button>
-    </div>
-
     <div id="update-banner">
         <span>🔄 Nueva versión disponible</span>
         <button id="btn-update-app">Actualizar ahora</button>
@@ -558,7 +550,7 @@
     </div>
 
     <script>
-        const APP_VERSION = "0.6.2.1";
+        const APP_VERSION = "0.6.2.2";
 
         window.addEventListener('error', function(e) {
             const sb = document.getElementById('statusBar');
@@ -1034,7 +1026,6 @@
             );
         }
 
-        // Modificada para asegurar comportamiento y uso explícito en botones de interfaz
         window.requestFullscreenAndNav = function(id) {
             const docEl = document.documentElement;
             const rfs = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
@@ -1150,10 +1141,9 @@
             }
         }
 
-        // Modificadas para aprovechar el gesto del usuario y forzar pantalla completa
         function recoverSession() { 
             document.getElementById('modal-recovery').classList.remove('active'); 
-            requestFullscreenAndNav(); // Petición de fullscreen con gesto de usuario real
+            requestFullscreenAndNav(); 
             startMatch(); 
         }
         function discardSession() { 
@@ -1304,7 +1294,6 @@
 
             applyColumnOrder(); renderColumns(); updateTime(); updateStatsUI(); updateLogUI(); initPitch(); updateLockState();
             
-            // Garantiza que la pantalla completa sea solicitada gracias al evento onclick físico del usuario
             requestFullscreenAndNav('screen-tracker'); 
             saveState();
         };
@@ -1732,7 +1721,7 @@
                 selectTeam(newPossession, true);
             }
 
-            document.getElementById('statusBar').innerText = `📝 Registrado: ${customEv} ${customSub ? '('+customSub+')' : ''}`;
+            document.getElementById('statusBar').innerText = `✅ Registrado: ${customEv} ${customSub ? '('+customSub+')' : ''}`;
             
             clearSub(); updateLogUI(); saveState();
         }
@@ -2010,24 +1999,6 @@
                 if (tag === 'INPUT' || tag === 'TEXTAREA') return;
                 e.preventDefault();
                 redoLastAction();
-            }
-        });
-
-        // Lógica de Prompt de Instalación PWA añadida
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            const banner = document.getElementById('install-banner');
-            if(banner) banner.style.display = 'flex';
-        });
-
-        document.getElementById('btn-install-app')?.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                deferredPrompt = null;
-                document.getElementById('install-banner').style.display = 'none';
             }
         });
 
