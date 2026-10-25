@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ruggermatch-pwa-v10'; // Versión forzada para purga
+const CACHE_NAME = 'ruggermatch-pwa-v11'; // Versión forzada para purga
 const ASSETS = [
   './',
   './index.html',
