@@ -1,3 +1,55 @@
+
+Conversación con Gemini
+a partir del archivo adjunto, añade los siguientes condicionantes:
+
+
+
+Cuando se registre un Ensayo, automáticamente el siguiente evento es Conversión.
+Después de una Conversión, independientemente de si es acierto a fallo, cambia la posesión al equipo contrario y selecciona la zona 4 canal central, listo para el saque de centro.
+Cuando el equipo que tiene la posesión es "Mi equipo", selecciona el módulo Ataque. Si "Mi equipo" pierde la posesión automáticamente cambia al módulo Defensa, y viceversa.
+Crea un nuevo botón en el módulo de Ataque que sea "Balón perdido" y que haga el cambio de posesión y pase al módulo Defensa.
+Crea un nuevo botón en el mósdulo de Defensa que sea "Balón recuperado" que haga el cambio de posesión y pase al módulo Ataque. 
+Tu archivo HTML modificado está listo.
+
+Icono de HTML
+index-v2
+ HTML 
+He integrado las condiciones lógicas directamente en la estructura de estado st y en el motor de eventos commitEvent.
+
+Implementación Técnica:
+
+Bucle Ensayo-Conversión: En commitEvent(), al detectarse que el evento entrante es ensayo, se limpia la interfaz y se invoca programáticamente handleEventClick('Conversión', 'General'). Esto deja la columna 3 (subfases) lista para el acierto o fallo sin intervención del usuario.
+
+Reinicio tras Conversión: Se han añadido "Conversión|Acierto" y "Conversión|Fallo" al diccionario RULES inyectándoles el parámetro poss: true. Tras ejecutarse, el sistema invierte la posesión, fija st.zone = 'Z4-Central' e invoca initPitch() para refrescar el campo.
+
+Control Síncrono de Módulos: Se ha introducido la función setModule(modKey) para gestionar la mutación del DOM en la botonera y las columnas. selectTeam() intercepta ahora cualquier cambio de posesión: si el equipo coincide con st.myTeam, fuerza 'ATAQUE'; si es el contrario, fuerza 'DEFENSA'.
+
+Transiciones de Balón: "Balón perdido" se agregó a MOD_EVENTS.ATAQUE y "Balón recuperado" a MOD_EVENTS.DEFENSA. Al incluirlos en RULES con poss: true (sin subfase requerida), pulsarlos desencadena el cambio de posesión y, por herencia de la regla 3, el módulo bascula automáticamente al opuesto. Se incluyó un inyector en loadState() para que los usuarios con un layout guardado en caché vean estos botones sin tener que borrar su memoria local.
+
+Puntos Ciegos y Riesgos de Arquitectura:
+
+Incompatibilidad con Ensayo de Castigo (Penalty Try): La automatización rígida Ensayo -> Conversión colisiona con el reglamento. Un ensayo de castigo otorga 7 puntos automáticos sin derecho a conversión. Tu lógica obligará al analista a marcar "Fallo" artificialmente para salir de la fase de conversión y reiniciar el juego, lo que corromperá las métricas de eficacia de los pateadores.
+
+Fricción Operativa por Automatización Forzada: Al atar la posesión exclusivamente a Ataque/Defensa, destruyes el flujo para acciones tácticas de transición. Ejemplo: El rival comete un retenido. Tu equipo gana la posesión y la app fuerza el módulo "Ataque". Si tu capitán decide patear a touch desde el golpe, el usuario tendrá que cambiar manualmente al módulo "Juego al Pie" o "Estáticas", obligando a un tap adicional y perdiendo la agilidad que buscabas ganar.
+
+Acumulación de Deuda Técnica en LocalStorage: Forzar la inyección de botones ("Balón perdido/recuperado") en layouts ya serializados mediante loadState es un parche temporal. A medida que escales la app, depender de estas inyecciones en caliente corromperá el orden de la grilla de aquellos usuarios que hayan modificado su diccionario avanzado.
+
+Plan Preciso y Priorizado:
+
+Ejecuta una prueba de estrés del bucle automático (Ensayo -> Conversión -> Z4 -> Posesión). Valida que las actualizaciones del DOM no bloqueen el hilo principal impidiendo al usuario registrar notas de voz concurrentes.
+
+Modifica la subfase de Ensayo. Extrae el "Ensayo de castigo" del flujo automático. Asigna los 7 puntos directamente en RULES y condiciona el salto a Conversión en commitEvent() para que solo ocurra si el ensayo no fue de castigo.
+
+Desacopla la lógica de persistencia. Debes crear un script de migración estructurado basado en la versión de la app (APP_VERSION). Si el usuario tiene una base de datos de versión anterior, migra su diccionario y layout en bloque; de lo contrario, la arquitectura actual de almacenamiento colapsará cuando intentes añadir métricas defensivas avanzadas.
+
+
+
+
+
+Gemini es una IA y puede cometer errores, incluso sobre personas. Tu privacidad y GeminiSe abre en una ventana nueva
+
+Refining Spanish technical report
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -760,11 +812,11 @@
             ATAQUE: [
                 "Línea de ventaja ganada", "Línea de ventaja no ganada", "Maul", "Ruck",
                 "Placaje >> Ruck", "Placaje en contra", "Patada", "Chute a palos",
-                "Comodín A1", "Comodín A2"
+                "Balón perdido", "Comodín A1", "Comodín A2"
             ],
             DEFENSA: [
                 "Golpe franco", "Balón adelantado", "Golpe de castigo en contra", "Placaje a favor",
-                "Comodín D1", "Comodín D2"
+                "Balón recuperado", "Comodín D1", "Comodín D2"
             ],
             ESTATICAS: ["Melée Propia", "Melée Rival", "Touch Propia", "Touch Rival", "Maul desde Touch", "Strike Play", "Salida Centro", "Comodín E1", "Comodín E2"],
             JUEGO_PIE: ["Box Kick", "Up & Under", "Grubber", "Exit", "Cross-kick", "Recepción Aérea", "Comodín P1", "Comodín P2"]
@@ -813,8 +865,8 @@
             "Ensayo|3/4": { pts: 5 },
             "Ensayo|Rotura de línea": { pts: 5 },
             "Ensayo|Maul": { pts: 5 },
-            "Conversión|Acierto": { pts: 2 },
-            "Drop|Acierto": { pts: 3 },
+            "Conversión|Acierto": { pts: 2, poss: true },
+            "Conversión|Fallo": { poss: true },
             "Golpe castigo a favor|A palos convertido": { pts: 3 },
             "Golpe castigo en contra|A palos convertido": { poss: true, pts: 3 },
             "Golpe castigo en contra|A palos fallado": { poss: true },
@@ -824,7 +876,9 @@
             "Golpe de castigo en contra|En punto de encuentro por tirarse": { poss: true },
             "Golpe de castigo en contra|En punto de encuentro por retenido": { poss: true },
             "Golpe de castigo en contra|En punto de encuentro por pescar": { poss: true },
-            "Balón adelantado|": { poss: true }
+            "Balón adelantado|": { poss: true },
+            "Balón perdido|": { poss: true },
+            "Balón recuperado|": { poss: true }
         };
 
         const defaultDict = {
@@ -850,6 +904,29 @@
             editMode: false, moveSource: null, adminUnlocked: false, wasRunningBeforeAdmin: false,
             lastTick: 0 
         };
+
+        function setModule(modKey) {
+            if (st.mod === modKey) return;
+            st.mod = modKey;
+            
+            const mg = document.getElementById('modulesGrid');
+            if (mg) {
+                Array.from(mg.children).forEach((card, index) => {
+                    const keys = Object.keys(MODULES);
+                    card.classList.toggle('selected', keys[index] === modKey);
+                });
+            }
+
+            const mb = document.getElementById('moduleBadge');
+            if (mb) {
+                mb.innerText = `${MODULES[st.mod].icon} MÓDULO ${MODULES[st.mod].name.toUpperCase()}`;
+                mb.style.backgroundColor = MODULES[st.mod].color;
+            }
+            
+            if (document.getElementById('screen-tracker').classList.contains('active')) {
+                renderColumns();
+            }
+        }
 
         function clearAllStates() {
             const keysToRemove = [];
@@ -975,6 +1052,9 @@
                     if(p.layout && p.layout.modules && Object.keys(p.layout.modules).length > 0) {
                         st.layout = p.layout;
                         if(!st.layout.colOrder) st.layout.colOrder = ['GENERAL', 'MODULO', 'SUBFASES'];
+                        
+                        if (!st.layout.modules['ATAQUE'].includes('Balón perdido')) st.layout.modules['ATAQUE'].push('Balón perdido');
+                        if (!st.layout.modules['DEFENSA'].includes('Balón recuperado')) st.layout.modules['DEFENSA'].push('Balón recuperado');
                     } else {
                         initDefaultLayout();
                     }
@@ -1114,7 +1194,7 @@
                 const m = MODULES[k]; const d = document.createElement('div');
                 d.className = `module-card ${k === st.mod ? 'selected' : ''}`;
                 d.innerHTML = `<div style="font-size:1.6rem; margin-bottom:4px;">${m.icon}</div><div style="font-weight:bold; font-size:0.85rem; color:var(--primary);">${m.name}</div><div style="font-size:0.65rem; color:#64748b; margin-top:4px;">${m.desc}</div>`;
-                d.onclick = () => { document.querySelectorAll('.module-card').forEach(c => c.classList.remove('selected')); d.classList.add('selected'); st.mod = k; saveState(); };
+                d.onclick = () => { document.querySelectorAll('.module-card').forEach(c => c.classList.remove('selected')); d.classList.add('selected'); setModule(k); saveState(); };
                 mg.appendChild(d);
             });
             initPitch(); applyColumnOrder(); updateLockState(); checkMicrophonePermission();
@@ -1385,6 +1465,15 @@
             const btnV = document.getElementById('btnTeamV');
             if (btnL) btnL.classList.toggle('selected', t === 'Local'); 
             if (btnV) btnV.classList.toggle('selected', t === 'Visitante'); 
+
+            if (t) {
+                if (t === st.myTeam) {
+                    setModule('ATAQUE');
+                } else {
+                    setModule('DEFENSA');
+                }
+            }
+
             if (!silent && (st.running || st.time > 0) && t && st.teams[t]) {
                 logSystemEvent('Contexto', 'Posesión', st.teams[t].s, { team: prevTeam }); 
             }
@@ -1721,9 +1810,20 @@
                 selectTeam(newPossession, true);
             }
 
+            if (evLowerPending === 'conversión') {
+                st.zone = 'Z4-Central';
+                initPitch();
+            }
+
             document.getElementById('statusBar').innerText = `✅ Registrado: ${customEv} ${customSub ? '('+customSub+')' : ''}`;
             
+            const wasEnsayo = evLowerPending === 'ensayo';
+
             clearSub(); updateLogUI(); saveState();
+
+            if (wasEnsayo) {
+                handleEventClick('Conversión', 'General');
+            }
         }
 
         let lastUndoTimestamp = 0;
