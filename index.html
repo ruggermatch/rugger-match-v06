@@ -189,6 +189,14 @@
         body.is-editing .evt-btn { border: 2px dashed #94a3b8; opacity: 0.8; }
         body.is-editing .evt-btn.move-source { border: 2px solid var(--danger) !important; background: #fef2f2 !important; opacity: 1; transform: scale(1.02); }
 
+        .col-content .evt-btn.active-phase {
+            background: var(--warning) !important;
+            color: #000 !important;
+            border-color: #b45309 !important;
+            box-shadow: inset 0 0 0 2px #b45309 !important;
+            transform: scale(0.96);
+        }
+
         .subfase-placeholder { grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 0.75rem; font-style: italic; text-align: center; height: 100%; }
 
         .controls-row { display: flex; gap: 8px; height: 32px; flex-shrink: 0; align-items: center; }
@@ -550,7 +558,7 @@
     </div>
 
     <script>
-        const APP_VERSION = "0.6.2.2";
+        const APP_VERSION = "0.6.2.3";
 
         window.addEventListener('error', function(e) {
             const sb = document.getElementById('statusBar');
@@ -785,7 +793,7 @@
             "Touch en contra": ["Recuperada", "Perdida"],
             "Melée a favor": ["Ganada con presión", "Ganada con 1 pase de calidad (8>9)", "Ganada con 1 pase de calidad (9>10)", "Ganada con 2 pases de calidad (8>9>10)", "Perdida", "Golpe de castigo a favor", "Golpe de castigo en contra"],
             "Melée en contra": ["Recuperada", "Perdida", "Golpe de castigo a favor", "Golpe de castigo en contra"],
-            "Ensayo": ["Delantera", "3/4", "Rotura de línea", "Maul"],
+            "Ensayo": ["Delantera", "3/4", "Rotura de línea", "Maul", "Ensayo de castigo"],
             "Conversión": ["Acierto", "Fallo"],
             "Drop": ["Acierto", "Fallo"],
             "Golpe castigo a favor": ["A palos convertido", "A palos fallado", "A touch", "Juego abierto"],
@@ -813,6 +821,7 @@
             "Ensayo|3/4": { pts: 5 },
             "Ensayo|Rotura de línea": { pts: 5 },
             "Ensayo|Maul": { pts: 5 },
+            "Ensayo|Ensayo de castigo": { pts: 7, poss: true },
             "Conversión|Acierto": { pts: 2, poss: true },
             "Conversión|Fallo": { poss: true },
             "Golpe castigo a favor|A palos convertido": { pts: 3 },
@@ -1491,6 +1500,7 @@
             const gEvents = st.layout.modules['GENERAL'] || [];
             gEvents.forEach((e, idx) => {
                 const b = document.createElement('button'); b.className = 'evt-btn'; b.innerText = dTranslate(e);
+                b.setAttribute('data-ev', e);
                 if (st.editMode) {
                     if (st.moveSource && st.moveSource.colKey === 'GENERAL' && st.moveSource.idx === idx) b.classList.add('move-source');
                     b.onclick = () => handleMoveClick('GENERAL', idx);
@@ -1505,6 +1515,7 @@
             const mEvents = st.layout.modules[st.mod] || [];
             mEvents.forEach((e, idx) => {
                 const b = document.createElement('button'); b.className = 'evt-btn'; b.innerText = dTranslate(e);
+                b.setAttribute('data-ev', e);
                 b.style.backgroundColor = MODULES[st.mod].color + '11'; b.style.borderColor = MODULES[st.mod].color + '55'; b.style.color = MODULES[st.mod].color;
                 if (st.editMode) {
                     if (st.moveSource && st.moveSource.colKey === st.mod && st.moveSource.idx === idx) b.classList.add('move-source');
@@ -1638,6 +1649,12 @@
             }
 
             st.pending = { ev, cat }; 
+
+            document.querySelectorAll('#col1-content .evt-btn, #col2-content .evt-btn').forEach(btn => {
+                if (btn.getAttribute('data-ev') === ev) btn.classList.add('active-phase');
+                else btn.classList.remove('active-phase');
+            });
+
             const subs = SUB_EVENTS[ev]; 
             const c3 = document.getElementById('col3-content'); c3.innerHTML = '';
             
@@ -1651,7 +1668,11 @@
             } else commitEvent("", null);
         }
 
-        function clearSub() { st.pending = null; document.getElementById('col3-content').innerHTML = '<div class="subfase-placeholder">Esperando acción en Col 1 o 2...</div>'; }
+        function clearSub() { 
+            st.pending = null; 
+            document.querySelectorAll('#col1-content .evt-btn, #col2-content .evt-btn').forEach(btn => btn.classList.remove('active-phase'));
+            document.getElementById('col3-content').innerHTML = '<div class="subfase-placeholder">Esperando acción en Col 1 o 2...</div>'; 
+        }
 
         function logSystemEvent(cat, ev, sub, customPrevState = null) {
             const sL = document.getElementById('scoreL').value; 
@@ -1758,18 +1779,18 @@
                 selectTeam(newPossession, true);
             }
 
-            if (evLowerPending === 'conversión') {
+            if (evLowerPending === 'conversión' || (evLowerPending === 'ensayo' && subRaw === 'Ensayo de castigo')) {
                 st.zone = 'Z4-Central';
                 initPitch();
             }
 
             document.getElementById('statusBar').innerText = `✅ Registrado: ${customEv} ${customSub ? '('+customSub+')' : ''}`;
             
-            const wasEnsayo = evLowerPending === 'ensayo';
+            const wasEnsayoNormal = evLowerPending === 'ensayo' && subRaw !== 'Ensayo de castigo';
 
             clearSub(); updateLogUI(); saveState();
 
-            if (wasEnsayo) {
+            if (wasEnsayoNormal) {
                 handleEventClick('Conversión', 'General');
             }
         }
