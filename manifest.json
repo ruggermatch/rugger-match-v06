@@ -13,9 +13,9 @@
       "type": "image/png"
     },
     {
-      "src": "icon.png",
+      "src": "icon.jpg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/jpg"
     }
   ]
 }
