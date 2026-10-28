@@ -677,7 +677,7 @@
             const payload = parseJwt(response.credential);
             const userId = payload.sub;
 
-            const allowedUsers = ["111156861575560627970", "103537033993342212835","109839816249633725397"]; 
+            const allowedUsers = ["111156861575560627970", "103537033993342212835","109839816249633725397","106656794410349860754"]; 
 
             if (!allowedUsers.includes(userId)) {
                 showAppAlert("Acceso denegado. Pasa este ID al admin: " + userId, "Error");
